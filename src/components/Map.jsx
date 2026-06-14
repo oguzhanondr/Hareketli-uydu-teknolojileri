@@ -18,7 +18,7 @@ import {
   MISSION_BOUNDS,
   fetchBuildings,
 } from '../lib/buildings.js'
-import { destinationPoint, firstBlockingBuilding } from '../lib/geometry.js'
+import { destinationPoint, distanceM, firstBlockingBuilding } from '../lib/geometry.js'
 import { getIntactBuildings } from '../lib/algorithm.js'
 import { rankColor, nlosColor } from '../lib/ui.js'
 
@@ -193,6 +193,56 @@ function ValidationBadge({ validation, onOpen }) {
   )
 }
 
+function nearestDebrisGroupKey(point, debris = []) {
+  if (!debris.length) return 'saha'
+  let best = null
+  for (const d of debris) {
+    const dist = distanceM(point, d)
+    if (!best || dist < best.dist) best = { debris: d, dist }
+  }
+  if (!best) return 'saha'
+  const groupRadius = Math.max(45, (best.debris.radius || 14) + 34)
+  return best.dist <= groupRadius ? best.debris.id || 'enkaz' : 'saha'
+}
+
+function buildIrsGroupLines(irsUnits = [], debris = []) {
+  const debrisById = new Map(debris.map((d) => [d.id, d]))
+  const lines = []
+
+  for (const u of irsUnits) {
+    const groups = new Map()
+    for (const survivor of u.coveredSurvivors || []) {
+      const key = nearestDebrisGroupKey(survivor, debris)
+      const group = groups.get(key) || { key, survivors: [] }
+      group.survivors.push(survivor)
+      groups.set(key, group)
+    }
+
+    for (const group of groups.values()) {
+      const survivors = group.survivors
+      if (!survivors.length) continue
+      const lat = survivors.reduce((sum, s) => sum + s.lat, 0) / survivors.length
+      const lng = survivors.reduce((sum, s) => sum + s.lng, 0) / survivors.length
+      const clearCount = survivors.filter((s) => s.nlos === 'CLEAR').length
+      const status =
+        clearCount === survivors.length ? 'CLEAR' : clearCount > 0 ? 'PARTIAL_NLoS' : 'FULL_NLoS'
+      const debrisName = debrisById.get(group.key)?.name || (group.key === 'saha' ? 'Saha geneli' : 'Enkaz kümesi')
+
+      lines.push({
+        id: `${u.id}-${group.key}`,
+        irs: u,
+        target: { lat, lng },
+        count: survivors.length,
+        clearCount,
+        status,
+        debrisName,
+      })
+    }
+  }
+
+  return lines
+}
+
 function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loading, buildingStatus }) {
   const btn = (active) =>
     `px-3 py-1.5 rounded-md font-head font-semibold text-sm tracking-wide border transition-all duration-200 ${
@@ -314,6 +364,11 @@ export default function MapPanel({
     const ids = selectedT.irs.flatMap((u) => [u.term_blocker_id, u.vic_blocker_id]).filter(Boolean)
     return new Set(ids)
   }, [selectedT])
+
+  const irsGroupLines = useMemo(
+    () => buildIrsGroupLines(selectedT?.irs || [], debris),
+    [selectedT, debris]
+  )
 
   const missionRect = [
     [MISSION_BOUNDS.south, MISSION_BOUNDS.west],
@@ -466,24 +521,27 @@ export default function MapPanel({
                 )
               })}
 
-              {selectedT.irs.flatMap((u) =>
-                u.coveredSurvivors.map((cs, i) => {
-                  const clear = cs.nlos === 'CLEAR'
-                  return (
-                    <Polyline
-                      key={`irs2s-${u.id}-${i}`}
-                      positions={[[u.lat, u.lng], [cs.lat, cs.lng]]}
-                      pathOptions={{
-                        color: clear ? '#22c55e' : '#ef4444',
-                        weight: 2,
-                        opacity: 0.9,
-                        dashArray: clear ? null : '8 8',
-                        className: clear ? 'path-draw' : 'path-draw path-nlos',
-                      }}
-                    />
-                  )
-                })
-              )}
+              {irsGroupLines.map((line) => {
+                const clear = line.status === 'CLEAR'
+                const partial = line.status === 'PARTIAL_NLoS'
+                return (
+                  <Polyline
+                    key={`irs2group-${line.id}`}
+                    positions={[[line.irs.lat, line.irs.lng], [line.target.lat, line.target.lng]]}
+                    pathOptions={{
+                      color: clear ? '#22c55e' : partial ? '#eab308' : '#ef4444',
+                      weight: Math.min(4, 1.8 + line.clearCount * 0.35),
+                      opacity: 0.82,
+                      dashArray: clear ? null : '8 8',
+                      className: clear ? 'path-draw' : 'path-draw path-nlos',
+                    }}
+                  >
+                    <Tooltip direction="center" opacity={0.95} sticky>
+                      {line.irs.name} -&gt; {line.debrisName}: {line.clearCount}/{line.count} açık depremzede
+                    </Tooltip>
+                  </Polyline>
+                )
+              })}
 
               {directLines.map((line, i) => (
                 <Polyline

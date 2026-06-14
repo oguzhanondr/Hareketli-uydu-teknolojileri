@@ -69,7 +69,7 @@ export function useMarkers() {
     () =>
       buildings
         .filter((b) => enkazIds.has(b.id))
-        .map((b) => ({ id: b.id, lat: b.lat, lng: b.lng, radius: b.radius })),
+        .map((b) => ({ id: b.id, lat: b.lat, lng: b.lng, radius: b.radius, name: b.name })),
     [buildings, enkazIds]
   )
 
