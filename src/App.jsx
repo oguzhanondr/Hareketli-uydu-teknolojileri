@@ -14,6 +14,7 @@ import { SCENARIOS, resolveScenario } from './data/scenarios.js'
 import { ELBISTAN_CENTER, DEFAULT_ZOOM } from './lib/buildings.js'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
+const DETAILS_HASH = '#proje-detaylari'
 
 export default function App() {
   const { isDark, toggle } = useTheme()
@@ -23,6 +24,24 @@ export default function App() {
   const [validationOpen, setValidationOpen] = useState(false)
   const [flyTo, setFlyTo] = useState(null)
   const [demoError, setDemoError] = useState(null)
+  const [page, setPage] = useState(() =>
+    window.location.hash === DETAILS_HASH ? 'details' : 'main'
+  )
+
+  useEffect(() => {
+    const syncPage = () => setPage(window.location.hash === DETAILS_HASH ? 'details' : 'main')
+    window.addEventListener('hashchange', syncPage)
+    syncPage()
+    return () => window.removeEventListener('hashchange', syncPage)
+  }, [])
+
+  const handleOpenProjectDetails = useCallback(() => {
+    if (window.location.hash === DETAILS_HASH) {
+      setPage('details')
+      return
+    }
+    window.location.hash = DETAILS_HASH
+  }, [])
 
   const resetBefore = useCallback(
     (action) =>
@@ -192,8 +211,13 @@ export default function App() {
         aiStatus={aiStatus}
         result={analysis.result}
         meta={meta}
+        currentPage={page}
+        onOpenProjectDetails={handleOpenProjectDetails}
       />
 
+      {page === 'details' ? (
+        <main className="relative z-10 min-h-0 flex-1 bg-panel" />
+      ) : (
       <main className="relative z-10 flex min-h-0 flex-1">
         <section className="h-full w-[60%] border-r border-border">
           <MapPanel
@@ -305,6 +329,7 @@ export default function App() {
           )}
         </section>
       </main>
+      )}
 
       {analysis.loading && <LoadingOverlay message={analysis.statusMessage} />}
       {modalIRS && <IRSModal irs={modalIRS} onClose={() => setModalIRS(null)} />}

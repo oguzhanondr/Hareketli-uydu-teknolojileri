@@ -137,7 +137,18 @@ function EngineStatus({ status }) {
   )
 }
 
-export default function Navbar({ onLoadScenario, isDark, onToggleTheme, aiStatus, result, meta }) {
+export default function Navbar({
+  onLoadScenario,
+  isDark,
+  onToggleTheme,
+  aiStatus,
+  result,
+  meta,
+  currentPage = 'main',
+  onOpenProjectDetails,
+}) {
+  const detailsActive = currentPage === 'details'
+
   return (
     <header className="relative z-[1100] flex items-center gap-4 border-b border-border bg-panel px-4 py-2.5">
       <div className="flex items-center gap-2.5">
@@ -157,6 +168,16 @@ export default function Navbar({ onLoadScenario, isDark, onToggleTheme, aiStatus
             Terminal Yerleşim Sistemi
           </div>
         </div>
+        <button
+          onClick={onOpenProjectDetails}
+          className={`ml-2 rounded-md border px-3 py-1.5 font-head text-xs font-semibold tracking-wide transition-all duration-200 ${
+            detailsActive
+              ? 'border-accent bg-accent/15 text-accent shadow-glow'
+              : 'border-border bg-card text-text hover:border-accent hover:text-accent'
+          }`}
+        >
+          Proje Detayları
+        </button>
       </div>
 
       <div className="mx-auto">
