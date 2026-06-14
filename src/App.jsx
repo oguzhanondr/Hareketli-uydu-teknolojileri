@@ -102,6 +102,7 @@ export default function App() {
     if (res.enkazIds.length > 0) {
       if (pd.timer) clearTimeout(pd.timer)
       pendingDemo.current = null
+      setDemoError(null)
       markers.setScene(res.survivors, res.enkazIds)
     }
   }, [markers])
@@ -114,7 +115,7 @@ export default function App() {
     (scenario) => {
       analysis.reset()
       markers.clearAll()
-      setDemoError(null)
+      setDemoError('Demo senaryosu icin bina verisi yukleniyor. Lutfen kisa bir sure bekleyin.')
       if (pendingDemo.current?.timer) clearTimeout(pendingDemo.current.timer)
       const timer = setTimeout(() => {
         const pd = pendingDemo.current
@@ -124,10 +125,10 @@ export default function App() {
         if (res.enkazIds.length > 0) markers.setScene(res.survivors, res.enkazIds)
         else {
           setDemoError(
-            'Bu blok icin bina verisi yuklenemedi. Internet baglantisini kontrol edip tekrar deneyin.'
+            'Bina verisi henuz alinamadi. Haritada biraz yakinlastirip 10-20 saniye bekledikten sonra demo senaryoyu tekrar secin.'
           )
         }
-      }, 9000)
+      }, 25000)
       pendingDemo.current = { scenario, timer }
       setFlyTo({ center: ELBISTAN_CENTER, zoom: DEFAULT_ZOOM, token: Date.now() })
       setTimeout(applyDemoIfReady, 200)

@@ -33,6 +33,24 @@ const ENDPOINTS = [
 
 const cache = new Map()
 
+async function fetchOverpass(url, query) {
+  const post = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'data=' + encodeURIComponent(query),
+  }).catch((err) => ({ ok: false, status: 'network', _error: err }))
+
+  if (post.ok) return post
+
+  const getUrl = `${url}?data=${encodeURIComponent(query)}`
+  const get = await fetch(getUrl).catch((err) => ({ ok: false, status: 'network', _error: err }))
+  if (get.ok) return get
+
+  const status = get.status || post.status || 'network'
+  const err = get._error || post._error
+  throw err || new Error(`Overpass HTTP ${status}`)
+}
+
 function normalizeRing(latlngs) {
   const filtered = []
   for (const [lat, lng] of latlngs) {
@@ -144,11 +162,7 @@ export async function fetchBuildings(viewport) {
   let lastErr
   for (const url of ENDPOINTS) {
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'data=' + encodeURIComponent(query),
-      })
+      const res = await fetchOverpass(url, query)
       if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`)
       const json = await res.json()
       const buildings = parseBuildings(json.elements || [])
