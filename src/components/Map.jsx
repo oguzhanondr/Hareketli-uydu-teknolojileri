@@ -16,8 +16,7 @@ import {
   DEFAULT_ZOOM,
   MAX_ZOOM,
   MISSION_BOUNDS,
-  fetchLiveBuildings,
-  getStaticBuildings,
+  fetchBuildings,
 } from '../lib/buildings.js'
 import { destinationPoint, distanceM, firstBlockingBuilding } from '../lib/geometry.js'
 import { getIntactBuildings } from '../lib/algorithm.js'
@@ -77,41 +76,25 @@ function ClickHandler({ mode, onMapClick }) {
 function BuildingLoader({ onLoaded, onStatus }) {
   const map = useMap()
   const timer = useRef(null)
-  const requestId = useRef(0)
 
   const run = useCallback(async () => {
-    const currentRequest = ++requestId.current
     if (map.getZoom() < MIN_BUILDING_ZOOM) {
       onStatus({ loading: false, tooFar: true, error: null })
       return
     }
     const b = map.getBounds()
-    const viewport = {
-      south: b.getSouth(),
-      west: b.getWest(),
-      north: b.getNorth(),
-      east: b.getEast(),
-    }
-    const staticList = getStaticBuildings(viewport)
-    if (staticList.length > 0) {
-      onLoaded(staticList)
-      onStatus({ loading: false, tooFar: false, error: null })
-    } else {
-      onStatus({ loading: true, tooFar: false, error: null })
-    }
-
+    onStatus({ loading: true, tooFar: false, error: null })
     try {
-      const list = await fetchLiveBuildings(viewport)
-      if (requestId.current !== currentRequest) return
+      const list = await fetchBuildings({
+        south: b.getSouth(),
+        west: b.getWest(),
+        north: b.getNorth(),
+        east: b.getEast(),
+      })
       onLoaded(list)
       onStatus({ loading: false, tooFar: false, error: null })
     } catch (e) {
-      if (requestId.current !== currentRequest) return
-      onStatus({
-        loading: false,
-        tooFar: false,
-        error: staticList.length > 0 ? null : String(e?.message || e),
-      })
+      onStatus({ loading: false, tooFar: false, error: String(e?.message || e) })
     }
   }, [map, onLoaded, onStatus])
 

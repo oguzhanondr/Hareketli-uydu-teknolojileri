@@ -17,10 +17,6 @@ export const MISSION_BOUNDS = {
   east: ELBISTAN_CENTER[1] + HALF_LNG,
 }
 
-export async function fetchBuildings(viewport) {
-  return getStaticBuildings(viewport)
-}
-
 export function inMission(lat, lng) {
   return (
     lat >= MISSION_BOUNDS.south &&
@@ -36,7 +32,7 @@ const ENDPOINTS = [
   'https://overpass.openstreetmap.fr/api/interpreter',
 ]
 
-const liveCache = new Map()
+const cache = new Map()
 
 async function fetchOverpass(url, query) {
   const post = await fetch(url, {
@@ -165,7 +161,7 @@ function boundsOverlap(a, b) {
   )
 }
 
-function staticBuildingsFor(bounds) {
+function fallbackBuildingsFor(bounds) {
   return FALLBACK_BUILDINGS.filter((building) => {
     const centerInside =
       building.lat >= bounds.south &&
@@ -176,18 +172,12 @@ function staticBuildingsFor(bounds) {
   })
 }
 
-export function getStaticBuildings(viewport) {
-  const b = clampToMission(viewport)
-  if (!b) return []
-  return staticBuildingsFor(b)
-}
-
-export async function fetchLiveBuildings(viewport) {
+export async function fetchBuildings(viewport) {
   const b = clampToMission(viewport)
   if (!b) return []
 
   const key = [b.south, b.west, b.north, b.east].map((v) => v.toFixed(3)).join(',')
-  if (liveCache.has(key)) return liveCache.get(key)
+  if (cache.has(key)) return cache.get(key)
 
   const query = `[out:json][timeout:25];(way["building"](${b.south},${b.west},${b.north},${b.east}););out geom;`
   let lastErr
@@ -198,12 +188,18 @@ export async function fetchLiveBuildings(viewport) {
       const json = await res.json()
       const buildings = parseBuildings(json.elements || [])
       if (buildings.length > 0) {
-        liveCache.set(key, buildings)
+        cache.set(key, buildings)
         return buildings
       }
     } catch (e) {
       lastErr = e
     }
+  }
+
+  const fallback = fallbackBuildingsFor(b)
+  if (fallback.length > 0) {
+    cache.set(key, fallback)
+    return fallback
   }
 
   throw lastErr || new Error('Bina verisi alınamadı')
