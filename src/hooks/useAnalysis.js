@@ -102,7 +102,13 @@ export function useAnalysis() {
     setValidation({ status: 'running', result: null })
     const res = await validatePlacementVisually(mapElement, placementData, apiKey)
     const status =
-      res.source === 'gemini' ? 'done' : res.source === 'skipped' ? 'skipped' : 'error'
+      res.source === 'gemini'
+        ? 'done'
+        : res.source === 'timeout'
+          ? 'timeout'
+          : res.source === 'skipped'
+            ? 'skipped'
+            : 'error'
     setValidation({ status, result: res })
   }, [])
 

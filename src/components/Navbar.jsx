@@ -57,6 +57,8 @@ function EngineStatus({ status }) {
         ? 'Calisiyor'
         : status.validation === 'done'
           ? 'Gemini'
+          : status.validation === 'timeout'
+            ? 'Zaman Asimi'
           : status.validation === 'error'
             ? 'Hata'
             : 'Hazir'
@@ -65,6 +67,8 @@ function EngineStatus({ status }) {
       ? '#22c55e'
       : validationValue === 'Calisiyor'
         ? '#00d4ff'
+        : validationValue === 'Zaman Asimi'
+          ? '#eab308'
         : validationValue === 'Hata'
           ? '#ef4444'
           : status.hasKey
@@ -120,6 +124,8 @@ function EngineStatus({ status }) {
               ? 'Harita goruntusu Gemini ile dogrulaniyor.'
               : status.validation === 'done'
                 ? 'Gorsel dogrulama tamamlandi.'
+                : status.validation === 'timeout'
+                  ? 'Gemini gorsel dogrulama gec yanit verdi; yerel geometri sonucu korunuyor.'
                 : status.validation === 'error'
                   ? status.error
                     ? `Gemini kullanilamadi: ${status.error}`

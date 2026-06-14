@@ -17,7 +17,7 @@ const MAX_ATTEMPTS = 3
 
 async function callGemini(
   apiKey,
-  { system, parts, temperature = 0.4, json = true, maxTokens, timeoutMs = 3200 }
+  { system, parts, temperature = 0.4, json = true, maxTokens, timeoutMs = 8000 }
 ) {
   const body = JSON.stringify({
     ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
@@ -44,7 +44,10 @@ async function callGemini(
       })
     } catch (e) {
       clearTimeout(timer)
-      lastErr = e
+      lastErr =
+        e?.name === 'AbortError' || String(e?.message || e).toLowerCase().includes('timeout')
+          ? new Error('timeout')
+          : e
       break
     }
     clearTimeout(timer)
@@ -169,7 +172,7 @@ export async function generateExplanations(payload, apiKey) {
       parts: [{ text: JSON.stringify(payload) }],
       temperature: 0.35,
       maxTokens: 4096,
-      timeoutMs: 3200,
+      timeoutMs: 9000,
     })
     const arr = parseJsonLoose(text)
     if (!Array.isArray(arr) || arr.length === 0) throw new Error('Yanit cozumlenemedi')
@@ -213,7 +216,7 @@ export async function rerankTerminals(payload, apiKey) {
       parts: [{ text: JSON.stringify(compact) }],
       temperature: 0.2,
       maxTokens: 512,
-      timeoutMs: 2200,
+      timeoutMs: 6000,
     })
     const parsed = parseJsonLoose(text)
     if (!parsed || typeof parsed !== 'object') throw new Error('Rerank yaniti cozumlenemedi')
@@ -279,9 +282,9 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       allowTaint: false,
       backgroundColor: '#0a0f1e',
       logging: false,
-      scale: 0.6,
+      scale: 0.45,
     })
-    base64 = canvas.toDataURL('image/png').split(',')[1]
+    base64 = canvas.toDataURL('image/jpeg', 0.72).split(',')[1]
     if (!base64) throw new Error('bos goruntu')
   } catch (e) {
     return {
@@ -297,10 +300,10 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
     const { text } = await callGemini(apiKey, {
       parts: [
         { text: VALIDATE_PROMPT + '\n\nPlacement metadata (JSON): ' + JSON.stringify(placementData) },
-        { inlineData: { mimeType: 'image/png', data: base64 } },
+        { inlineData: { mimeType: 'image/jpeg', data: base64 } },
       ],
       temperature: 0.2,
-      timeoutMs: 4200,
+      timeoutMs: 15000,
     })
     const parsed = parseJsonLoose(text)
     if (!parsed || typeof parsed !== 'object') throw new Error('Yanit cozumlenemedi')
@@ -312,6 +315,17 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       source: 'gemini',
     }
   } catch (e) {
+    const message = String(e?.message || e)
+    if (message.toLowerCase().includes('timeout')) {
+      return {
+        valid: null,
+        issues: [],
+        confidence: 0,
+        recommendation:
+          'Gemini gorsel dogrulama zaman asimina dustu. Yerlesim sonucu yerel geometri motoru tarafindan korunuyor.',
+        source: 'timeout',
+      }
+    }
     return {
       valid: null,
       issues: [],
