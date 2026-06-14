@@ -37,7 +37,8 @@ export default function App() {
 
   const handleOpenProjectDetails = useCallback(() => {
     if (window.location.hash === DETAILS_HASH) {
-      setPage('details')
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+      setPage('main')
       return
     }
     window.location.hash = DETAILS_HASH
