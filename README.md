@@ -156,7 +156,7 @@ Gemini cannot:
 Current model:
 
 ```text
-gemini-3.5-flash
+gemini-2.5-flash
 ```
 
 ## Important Source Files

@@ -4,10 +4,10 @@
 // Placement is always produced by the deterministic local engine.
 // Gemini only reranks already-valid local outputs, upgrades explanation text,
 // and performs optional visual checks.
-// The project now uses a single explicit model: gemini-3.5-flash.
+// The project uses a single explicit model for Gemini-assisted explanation and validation.
 // ============================================================
 
-const GEMINI_MODEL = 'gemini-3.5-flash'
+const GEMINI_MODEL = 'gemini-2.5-flash'
 const GEMINI_ENDPOINT =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
 
