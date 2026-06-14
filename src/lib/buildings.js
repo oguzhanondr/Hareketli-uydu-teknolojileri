@@ -2,6 +2,7 @@
 // buildings.js - OpenStreetMap building footprints (Overpass)
 // ============================================================
 import { distanceM } from './geometry.js'
+import { FALLBACK_BUILDINGS } from '../data/fallbackBuildings.js'
 
 export const ELBISTAN_CENTER = [38.20598, 37.1961]
 export const DEFAULT_ZOOM = 17
@@ -151,6 +152,26 @@ function clampToMission(b) {
   return { south, north, west, east }
 }
 
+function boundsOverlap(a, b) {
+  return !(
+    a.east < b.west ||
+    a.west > b.east ||
+    a.north < b.south ||
+    a.south > b.north
+  )
+}
+
+function fallbackBuildingsFor(bounds) {
+  return FALLBACK_BUILDINGS.filter((building) => {
+    const centerInside =
+      building.lat >= bounds.south &&
+      building.lat <= bounds.north &&
+      building.lng >= bounds.west &&
+      building.lng <= bounds.east
+    return centerInside || boundsOverlap(bounds, building.bbox)
+  })
+}
+
 export async function fetchBuildings(viewport) {
   const b = clampToMission(viewport)
   if (!b) return []
@@ -166,11 +187,20 @@ export async function fetchBuildings(viewport) {
       if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`)
       const json = await res.json()
       const buildings = parseBuildings(json.elements || [])
-      cache.set(key, buildings)
-      return buildings
+      if (buildings.length > 0) {
+        cache.set(key, buildings)
+        return buildings
+      }
     } catch (e) {
       lastErr = e
     }
   }
+
+  const fallback = fallbackBuildingsFor(b)
+  if (fallback.length > 0) {
+    cache.set(key, fallback)
+    return fallback
+  }
+
   throw lastErr || new Error('Bina verisi alinamadi')
 }
