@@ -25,14 +25,14 @@ export default function IRSCard({ irs, index, onOpen }) {
       </div>
 
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-head uppercase tracking-wide">
-        <span style={{ color: nlosColor(irs.nlos_status) }}>● {nlosLabel(irs.nlos_status)}</span>
-        <span className="text-muted">·</span>
+        <span style={{ color: nlosColor(irs.nlos_status) }}>* {nlosLabel(irs.nlos_status)}</span>
+        <span className="text-muted"> - </span>
         <span className="text-muted">{irs.survivors_covered_clear} acik kapsama</span>
-        <span className="text-muted">·</span>
+        <span className="text-muted"> - </span>
         <span className="text-muted">{irs.distance_to_terminal} m</span>
         {typeof irs.link_gain_db === 'number' && (
           <>
-            <span className="text-muted">·</span>
+            <span className="text-muted"> - </span>
             <span className="text-accent">
               {irs.link_gain_db >= 0 ? '+' : ''}
               {irs.link_gain_db} dB
@@ -43,11 +43,11 @@ export default function IRSCard({ irs, index, onOpen }) {
 
       <div className="mt-1 flex items-center gap-2 text-[10px] font-head uppercase tracking-wide">
         <span style={{ color: quality.color }}>{quality.label}</span>
-        <span className="text-muted">·</span>
+        <span className="text-muted"> - </span>
         <span className="text-accent">
           {irs.mount_type === 'cephe'
-            ? `${irs.facade} cephe · ~${irs.mount_height_m} m`
-            : `Serbest direk · ~${irs.mount_height_m} m`}
+            ? `${irs.facade} cephe  -  ~${irs.mount_height_m} m`
+            : `Serbest direk  -  ~${irs.mount_height_m} m`}
         </span>
       </div>
 

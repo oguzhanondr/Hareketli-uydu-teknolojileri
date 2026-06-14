@@ -31,7 +31,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
               className="flex h-9 w-9 items-center justify-center rounded-lg text-lg font-bold"
               style={{ backgroundColor: `${color}22`, color, border: `1px solid ${color}66` }}
             >
-              {valid ? '✓' : '⚠'}
+              {valid ? 'OK' : '!'}
             </span>
             <div>
               <h2 className="font-head text-xl font-bold tracking-wide text-text">{title}</h2>
@@ -45,7 +45,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
             className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted transition-colors hover:border-debris hover:text-debris"
             aria-label="Kapat"
           >
-            ×
+            x
           </button>
         </div>
 

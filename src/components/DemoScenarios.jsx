@@ -26,8 +26,8 @@ export default function DemoScenarios({ onLoad }) {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-1.5 font-head text-sm font-semibold tracking-wide text-text transition-all duration-200 hover:border-accent hover:text-accent"
       >
-        <span className="text-accent">▣</span> Demo Senaryolar
-        <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
+        <span className="text-accent">[ ]</span> Demo Senaryolar
+        <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>v</span>
       </button>
 
       {open && (

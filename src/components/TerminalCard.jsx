@@ -2,10 +2,10 @@ import { useState } from 'react'
 
 function mountLabel(mount) {
   if (!mount) return null
-  if (mount.type === 'acik alan') return `Acik alan · serbest direk · ~${mount.mount_height_m} m`
+  if (mount.type === 'acik alan') return `Acik alan  -  serbest direk  -  ~${mount.mount_height_m} m`
   const host = mount.host_building_name || 'Bina'
-  if (mount.type === 'cati') return `${host} · cati · ~${mount.mount_height_m} m`
-  return `${host} · ${mount.facade} cephe · ~${mount.mount_height_m} m`
+  if (mount.type === 'cati') return `${host}  -  cati  -  ~${mount.mount_height_m} m`
+  return `${host}  -  ${mount.facade} cephe  -  ~${mount.mount_height_m} m`
 }
 
 export default function TerminalCard({ terminal, selected, onSelect, index }) {
@@ -46,7 +46,7 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
       {label && (
         <span className="mt-1.5 inline-flex max-w-full items-center gap-1 rounded-md border border-terminal/40 bg-terminal/10 px-1.5 py-0.5 font-head text-[10px] leading-tight tracking-wide text-terminal">
           <span className="truncate">{label}</span>
-          {showIrs && <span className="shrink-0 text-muted">· {mount.irs_visible}/{mount.irs_total} IRS</span>}
+          {showIrs && <span className="shrink-0 text-muted"> -  {mount.irs_visible}/{mount.irs_total} IRS</span>}
         </span>
       )}
 

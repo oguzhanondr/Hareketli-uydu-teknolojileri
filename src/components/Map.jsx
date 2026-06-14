@@ -153,15 +153,15 @@ function Validator({ token, onValidate }) {
 function ValidationBadge({ validation, onOpen }) {
   const { status, result } = validation
   let color = '#8aa0c6'
-  let icon = '●'
+  let icon = '*'
   let label = ''
   if (status === 'running') {
     color = '#00d4ff'
-    icon = '◌'
+    icon = 'o'
     label = 'Dogrulaniyor...'
   } else if (status === 'done' && result?.valid === true) {
     color = '#22c55e'
-    icon = '✓'
+    icon = 'OK'
     label = 'Yerlesim Dogrulandi'
   } else {
     return null
@@ -187,7 +187,7 @@ function ValidationBadge({ validation, onOpen }) {
       </span>
       {label}
       {status === 'done' && result?.confidence ? (
-        <span className="opacity-70">· %{result.confidence}</span>
+        <span className="opacity-70"> -  %{result.confidence}</span>
       ) : null}
     </button>
   )
@@ -224,11 +224,11 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
 
       <span className="font-head text-[11px] uppercase tracking-wide">
         {buildingStatus.loading ? (
-          <span className="text-accent">● Binalar yukleniyor...</span>
+          <span className="text-accent">* Binalar yukleniyor...</span>
         ) : buildingStatus.error ? (
-          <span className="text-debris">● Bina verisi alinamadi</span>
+          <span className="text-debris">* Bina verisi alinamadi</span>
         ) : buildingStatus.tooFar ? (
-          <span className="text-muted">● Binalar icin yakinlastirin</span>
+          <span className="text-muted">* Binalar icin yakinlastirin</span>
         ) : null}
       </span>
 
@@ -410,7 +410,7 @@ export default function MapPanel({
                         : highlightedBlocker
                           ? 'Bu bina sinyal hattini kesiyor'
                           : 'Kaldirilacak enkaz degil'}
-                    {b.name ? ` · ${b.name}` : ''}
+                    {b.name ? `  -  ${b.name}` : ''}
                   </Tooltip>
                 )}
               </Polygon>
@@ -459,8 +459,8 @@ export default function MapPanel({
                     }}
                   >
                     <Tooltip direction="center" opacity={0.95} sticky>
-                      Terminal → {u.name}: %{Math.round((u.term_los ?? 0) * 100)} aciklik
-                      {u.term_blocker_name ? ` · Engelleyen: ${u.term_blocker_name}` : ''}
+                      Terminal -&gt; {u.name}: %{Math.round((u.term_los ?? 0) * 100)} aciklik
+                      {u.term_blocker_name ? `  -  Engelleyen: ${u.term_blocker_name}` : ''}
                     </Tooltip>
                   </Polyline>
                 )
@@ -499,7 +499,7 @@ export default function MapPanel({
                 zIndexOffset={1000}
               >
                 <Tooltip direction="top" offset={[0, -26]} opacity={1}>
-                  <b>{selectedT.name}</b> · {selectedT.scorePct}%
+                  <b>{selectedT.name}</b>  -  {selectedT.scorePct}%
                 </Tooltip>
               </Marker>
 
@@ -523,15 +523,15 @@ export default function MapPanel({
                   zIndexOffset={900}
                 >
                   <Tooltip direction="top" offset={[0, -14]} opacity={1}>
-                    <b>{u.name}</b> · Kalite %{Math.round((u.quality_score ?? u.composite_score) * 100)}
+                    <b>{u.name}</b>  -  Kalite %{Math.round((u.quality_score ?? u.composite_score) * 100)}
                     <br />
-                    T-&gt;IRS %{Math.round((u.term_los ?? 0) * 100)} · IRS-&gt;Hedef %
-                    {Math.round((u.vic_los ?? 0) * 100)} · {u.link_gain_db >= 0 ? '+' : ''}
+                    T-&gt;IRS %{Math.round((u.term_los ?? 0) * 100)}  -  IRS-&gt;Hedef %
+                    {Math.round((u.vic_los ?? 0) * 100)}  -  {u.link_gain_db >= 0 ? '+' : ''}
                     {u.link_gain_db} dB
                     <br />
                     {u.mount_type === 'cephe'
-                      ? `${u.facade} cephe · ~${u.mount_height_m} m`
-                      : `Serbest direk · ~${u.mount_height_m} m`}
+                      ? `${u.facade} cephe  -  ~${u.mount_height_m} m`
+                      : `Serbest direk  -  ~${u.mount_height_m} m`}
                     {u.validity_status === 'borderline' ? <><br />Sinirda ama gecerli</> : null}
                   </Tooltip>
                 </Marker>

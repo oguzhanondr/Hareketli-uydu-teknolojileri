@@ -12,12 +12,25 @@ const PAGE_W = 595.28
 const PAGE_H = 841.89
 const CONTENT_W = PAGE_W - MARGIN * 2
 
-const TR_MAP = {
-  ı: 'i', İ: 'I', ş: 's', Ş: 'S', ğ: 'g', Ğ: 'G',
-  ö: 'o', Ö: 'O', ü: 'u', Ü: 'U', ç: 'c', Ç: 'C',
-  â: 'a', î: 'i', û: 'u',
-}
-const tr = (s) => String(s).replace(/[ıİşŞğĞöÖüÜçÇâîû]/g, (c) => TR_MAP[c] || c)
+const TR_MAP = new Map([
+  ['\u0131', 'i'],
+  ['\u0130', 'I'],
+  ['\u015f', 's'],
+  ['\u015e', 'S'],
+  ['\u011f', 'g'],
+  ['\u011e', 'G'],
+  ['\u00f6', 'o'],
+  ['\u00d6', 'O'],
+  ['\u00fc', 'u'],
+  ['\u00dc', 'U'],
+  ['\u00e7', 'c'],
+  ['\u00c7', 'C'],
+  ['\u00e2', 'a'],
+  ['\u00ee', 'i'],
+  ['\u00fb', 'u'],
+])
+const tr = (s) =>
+  String(s).replace(/[\u0131\u0130\u015f\u015e\u011f\u011e\u00f6\u00d6\u00fc\u00dc\u00e7\u00c7\u00e2\u00ee\u00fb]/g, (c) => TR_MAP.get(c) || c)
 
 function buildPdf(result, meta) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
@@ -128,10 +141,10 @@ function buildPdf(result, meta) {
   }
 
   for (const t of result.terminals) {
-    heading(`${t.name} · IRS Birimleri`, ACCENT, 12)
+    heading(`${t.name}  -  IRS Birimleri`, ACCENT, 12)
     for (const u of t.irs) {
       ensure(40)
-      body(`${u.name}   ·   Kalite ${pct(u.quality_score ?? u.composite_score)}/100   ·   ${nlosLabel(u.nlos_status)}`, {
+      body(`${u.name}    -    Kalite ${pct(u.quality_score ?? u.composite_score)}/100    -    ${nlosLabel(u.nlos_status)}`, {
         font: 'bold',
         size: 10,
         gap: 2,
@@ -149,7 +162,7 @@ function buildPdf(result, meta) {
         ['FRESNEL', `%${pct(u.fresnel_clear)}`],
       ])
       kvRow([
-        ['MONTAJ', u.mount_type === 'cephe' ? `${u.facade} ${u.facade_bearing}°` : 'Serbest direk'],
+        ['MONTAJ', u.mount_type === 'cephe' ? `${u.facade} ${u.facade_bearing} deg` : 'Serbest direk'],
         ['MONTAJ YUK.', `${u.mount_height_m} m`],
         ['BINA YUK.', u.building_height_m ? `${u.building_height_m} m` : '-'],
         ['DURUM', u.validity_status === 'borderline' ? 'Sinirda ama gecerli' : 'Gecerli oneri'],
@@ -167,7 +180,7 @@ function buildPdf(result, meta) {
     doc.setFontSize(8)
     doc.setTextColor(...MUTED)
     doc.text(`Sayfa ${p} / ${total}`, PAGE_W - MARGIN, PAGE_H - 20, { align: 'right' })
-    doc.text(tr('ARES-Reflect · TEKNOFEST Mobil Uydu Terminali Yarismasi'), MARGIN, PAGE_H - 20)
+    doc.text(tr('ARES-Reflect  -  TEKNOFEST Mobil Uydu Terminali Yarismasi'), MARGIN, PAGE_H - 20)
   }
 
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
@@ -187,7 +200,7 @@ export default function ExportPDF({ result, meta }) {
           : 'border border-accent bg-accent/10 text-accent hover:bg-accent/20 hover:shadow-glow'
       }`}
     >
-      <span>⤓</span> PDF Disa Aktar
+      <span>PDF</span> PDF Disa Aktar
     </button>
   )
 }

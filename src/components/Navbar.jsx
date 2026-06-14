@@ -164,7 +164,7 @@ export default function Navbar({ onLoadScenario, isDark, onToggleTheme, aiStatus
           title="Temayi degistir"
           className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-base transition-all duration-200 hover:border-accent hover:text-accent"
         >
-          {isDark ? '☀' : '☾'}
+          {isDark ? 'Light' : 'Dark'}
         </button>
         <ExportPDF result={result} meta={meta} />
       </div>

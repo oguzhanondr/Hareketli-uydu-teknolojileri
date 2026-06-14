@@ -232,7 +232,7 @@ export default function App() {
             <div className="flex items-center justify-between gap-2 border-b border-debris/40 bg-debris/10 px-4 py-2 text-xs text-debris">
               <span>{demoError}</span>
               <button onClick={() => setDemoError(null)} className="font-bold">
-                ×
+                x
               </button>
             </div>
           )}
@@ -262,7 +262,7 @@ export default function App() {
                 <div>
                   <div className="mb-2 flex items-center gap-2">
                     <span className="font-head text-[11px] uppercase tracking-[0.25em] text-muted">
-                      {selectedTerminal.name} · {selectedTerminal.irs.length} Gecerli IRS
+                      {selectedTerminal.name}  -  {selectedTerminal.irs.length} Gecerli IRS
                     </span>
                     <span className="h-px flex-1 bg-border" />
                   </div>
@@ -322,7 +322,7 @@ function EmptyState({ markers }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-accent/40 bg-accent/5 text-2xl text-accent shadow-glow">
-        ◎
+        o
       </div>
       <h3 className="font-head text-lg font-bold tracking-wide text-text">Henuz analiz yok</h3>
       <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
@@ -342,7 +342,7 @@ function EmptyState({ markers }) {
 function Req({ ok, label }) {
   return (
     <span className={`flex items-center gap-1.5 ${ok ? 'text-los' : 'text-muted'}`}>
-      <span>{ok ? '✓' : '○'}</span>
+      <span>{ok ? 'OK' : 'o'}</span>
       {label}
     </span>
   )

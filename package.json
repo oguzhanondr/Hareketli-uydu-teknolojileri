@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "ARES-Reflect Terminal Placement System — TEKNOFEST Mobile Satellite Terminal Competition",
+  "description": "ARES-Reflect terminal placement system for TEKNOFEST mobile satellite communication planning",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

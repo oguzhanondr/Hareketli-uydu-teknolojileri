@@ -29,13 +29,13 @@ export default function IRSModal({ irs, onClose }) {
   const badge = rankColor(irs.rank)
   const quality = qualityBadge(irs.quality_score ?? irs.composite_score)
   const onFacade = irs.mount_type === 'cephe'
-  const mountLabel = onFacade ? `${irs.facade} cephe (${irs.facade_bearing}°)` : 'Serbest direk'
+  const mountLabel = onFacade ? `${irs.facade} cephe (${irs.facade_bearing} deg)` : 'Serbest direk'
   const blockerSummary = [
     irs.term_blocker_name ? `Terminal-IRS: ${irs.term_blocker_name}` : null,
     irs.vic_blocker_name ? `IRS-Hedef: ${irs.vic_blocker_name}` : null,
   ]
     .filter(Boolean)
-    .join(' · ')
+    .join('  -  ')
 
   return (
     <div
@@ -70,7 +70,7 @@ export default function IRSModal({ irs, onClose }) {
               className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-lg text-muted transition-colors hover:border-debris hover:text-debris"
               aria-label="Kapat"
             >
-              ×
+              x
             </button>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function IRSModal({ irs, onClose }) {
             onClick={() => setShowTech((v) => !v)}
             className="mt-5 w-full rounded-md border border-accent/50 bg-accent/10 px-4 py-2.5 font-head text-base font-semibold tracking-wide text-accent transition-all duration-200 hover:bg-accent/20"
           >
-            {showTech ? 'Teknik Detaylari Gizle ▲' : 'Teknik Detaylar ▼'}
+            {showTech ? 'Teknik Detaylari Gizle ^' : 'Teknik Detaylar v'}
           </button>
           {showTech && (
             <div className="mt-3 rounded-md border border-accent/20 bg-card p-5 shadow-inner animate-fadeInUp">
