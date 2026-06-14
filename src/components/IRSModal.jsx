@@ -29,7 +29,7 @@ export default function IRSModal({ irs, onClose }) {
   const badge = rankColor(irs.rank)
   const quality = qualityBadge(irs.quality_score ?? irs.composite_score)
   const onFacade = irs.mount_type === 'cephe'
-  const mountLabel = onFacade ? `${irs.facade} cephe (${irs.facade_bearing} deg)` : 'Serbest direk'
+  const mountLabel = onFacade ? `${irs.facade} cephe (${irs.facade_bearing}°)` : 'Serbest direk'
   const blockerSummary = [
     irs.term_blocker_name ? `Terminal-IRS: ${irs.term_blocker_name}` : null,
     irs.vic_blocker_name ? `IRS-Hedef: ${irs.vic_blocker_name}` : null,
@@ -54,7 +54,7 @@ export default function IRSModal({ irs, onClose }) {
             <div>
               <h2 className="font-head text-2xl font-bold tracking-wide text-text">{irs.name}</h2>
               <div className="font-head text-xs uppercase tracking-[0.25em] text-muted">
-                Akilli Yansitici Yuzey
+                Akıllı Yansıtıcı Yüzey
               </div>
             </div>
           </div>
@@ -86,12 +86,12 @@ export default function IRSModal({ irs, onClose }) {
               backgroundColor: `${quality.color}14`,
             }}
           >
-            Kalite bandi: {quality.label}
+            Kalite bandı: {quality.label}
           </div>
 
           {irs.validity_status === 'borderline' && (
             <div className="mt-4 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-[13px] leading-relaxed text-amber-100">
-              Bu IRS onerisi fiziksel olarak gecerli; ancak kalite puani sinirda kalmistir.
+              Bu IRS önerisi fiziksel olarak geçerli; ancak kalite puanı sınırda kalmıştır.
               {irs.constrained_reason ? ` ${irs.constrained_reason}` : ''}
             </div>
           )}
@@ -99,7 +99,7 @@ export default function IRSModal({ irs, onClose }) {
           {irs.decision && (
             <div className="mt-4 rounded-lg border border-accent/40 bg-accent/5 px-4 py-3">
               <div className="font-head text-xs font-semibold uppercase tracking-wide text-accent">
-                Neden secildi
+                Neden seçildi
               </div>
               <p className="mt-1 text-[13px] leading-relaxed text-text">{irs.decision}</p>
             </div>
@@ -117,19 +117,19 @@ export default function IRSModal({ irs, onClose }) {
               accent={nlosColor(irs.vic_los_status)}
             />
             <DataRow
-              label="Kalite Puani"
+              label="Kalite Puanı"
               value={`%${pct(irs.quality_score ?? irs.composite_score)}`}
               accent="var(--accent)"
             />
             <DataRow label="Durum" value={quality.label} accent={quality.color} />
-            <DataRow label="Terminale Uzaklik" value={`${irs.distance_to_terminal} m`} />
+            <DataRow label="Terminale Uzaklık" value={`${irs.distance_to_terminal} m`} />
             <DataRow label="Toplam Sinyal Yolu" value={`${irs.total_path_m} m`} />
             <DataRow
-              label="Tahmini Link Kazanci"
+              label="Tahmini Link Kazancı"
               value={`${irs.link_gain_db >= 0 ? '+' : ''}${irs.link_gain_db} dB`}
               accent="var(--accent)"
             />
-            <DataRow label="Acik Kapsama" value={`${irs.survivors_covered_clear} depremzede`} />
+            <DataRow label="Açık Kapsama" value={`${irs.survivors_covered_clear} depremzede`} />
             <DataRow label="Toplam Kapsama" value={`${irs.survivors_covered} depremzede`} />
             <DataRow
               label="Hat Durumu"
@@ -141,7 +141,7 @@ export default function IRSModal({ irs, onClose }) {
               value={mountLabel}
               accent={onFacade ? 'var(--accent)' : undefined}
             />
-            <DataRow label="Montaj Yuksekligi" value={`${irs.mount_height_m} m`} />
+            <DataRow label="Montaj Yüksekliği" value={`${irs.mount_height_m} m`} />
             {onFacade && irs.host_building_name && (
               <DataRow label="Bina" value={irs.host_building_name} />
             )}
@@ -158,15 +158,15 @@ export default function IRSModal({ irs, onClose }) {
             onClick={() => setShowTech((v) => !v)}
             className="mt-5 w-full rounded-md border border-accent/50 bg-accent/10 px-4 py-2.5 font-head text-base font-semibold tracking-wide text-accent transition-all duration-200 hover:bg-accent/20"
           >
-            {showTech ? 'Teknik Detaylari Gizle ^' : 'Teknik Detaylar v'}
+            {showTech ? 'Teknik Detayları Gizle ^' : 'Teknik Detaylar v'}
           </button>
           {showTech && (
             <div className="mt-3 rounded-md border border-accent/20 bg-card p-5 shadow-inner animate-fadeInUp">
               <div className="mb-2 font-head text-xs uppercase tracking-[0.25em] text-accent">
-                Muhendislik Analizi
+                Mühendislik Analizi
               </div>
               <p className="text-[14px] leading-7 text-text">
-                {irs.technical || 'Teknik aciklama bu birim icin yuklenemedi.'}
+                {irs.technical || 'Teknik açıklama bu birim için yüklenemedi.'}
               </p>
             </div>
           )}

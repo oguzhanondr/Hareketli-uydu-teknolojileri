@@ -22,10 +22,10 @@ function EngineStatus({ status }) {
     status.explanation === 'gemini'
       ? 'Gemini'
       : status.explanation === 'pending'
-        ? 'Calisiyor'
+        ? 'Çalışıyor'
         : status.hasKey
           ? 'Yerel'
-          : 'Kapali'
+          : 'Kapalı'
   const explanationColor =
     status.explanation === 'gemini'
       ? '#22c55e'
@@ -38,10 +38,10 @@ function EngineStatus({ status }) {
     status.rerank === 'gemini'
       ? 'Gemini'
       : status.rerank === 'pending'
-        ? 'Calisiyor'
+        ? 'Çalışıyor'
         : status.hasKey
           ? 'Yerel'
-          : 'Kapali'
+          : 'Kapalı'
   const rerankColor =
     status.rerank === 'gemini'
       ? '#22c55e'
@@ -52,20 +52,20 @@ function EngineStatus({ status }) {
           : '#8aa0c6'
   const validationValue =
     !status.hasKey
-      ? 'Kapali'
+      ? 'Kapalı'
       : status.validation === 'running'
-        ? 'Calisiyor'
+        ? 'Çalışıyor'
         : status.validation === 'done'
           ? 'Gemini'
           : status.validation === 'timeout'
             ? 'Zaman Asimi'
           : status.validation === 'error'
             ? 'Hata'
-            : 'Hazir'
+            : 'Hazır'
   const validationColor =
     validationValue === 'Gemini'
       ? '#22c55e'
-      : validationValue === 'Calisiyor'
+      : validationValue === 'Çalışıyor'
         ? '#00d4ff'
         : validationValue === 'Zaman Asimi'
           ? '#eab308'
@@ -78,25 +78,25 @@ function EngineStatus({ status }) {
   return (
     <div className="flex items-center gap-2">
       <StatusPill
-        label="Yerlesim"
+        label="Yerleşim"
         value="Yerel"
         color="#00d4ff"
-        title="Konumlandirma her zaman yerel ve deterministik motorla yapilir."
+        title="Konumlandırma her zaman yerel ve deterministik motorla yapılır."
       />
       <StatusPill
-        label="Aciklama"
+        label="Açıklama"
         value={explanationValue}
         color={explanationColor}
         title={
           status.explanation === 'gemini'
-            ? 'Aciklamalar Gemini ile uretildi.'
+            ? 'Açıklamalar Gemini ile üretildi.'
             : status.explanation === 'pending'
-              ? 'Yerel sonuc gosterildi; Gemini arka planda aciklama uretiyor.'
+              ? 'Yerel sonuç gösterildi; Gemini arka planda açıklama üretiyor.'
             : status.error
-              ? `Gemini kullanilamadi: ${status.error}`
+              ? `Gemini kullanılamadı: ${status.error}`
               : status.hasKey
-                ? 'Gemini denendi; su an ekranda yerel aciklama gosteriliyor.'
-                : 'Gemini kapali, aciklamalar yerel motorla sunuluyor.'
+                ? 'Gemini denendi; şu an ekranda yerel açıklama gösteriliyor.'
+                : 'Gemini kapalı, açıklamalar yerel motorla sunuluyor.'
         }
       />
       <StatusPill
@@ -105,32 +105,32 @@ function EngineStatus({ status }) {
         color={rerankColor}
         title={
           status.rerank === 'gemini'
-            ? 'Gecerli yerel cozumler arasindaki sunum sirasi Gemini ile iyilestirildi.'
+            ? 'Geçerli yerel çözümler arasındaki sunum sırası Gemini ile iyileştirildi.'
             : status.rerank === 'pending'
-              ? 'Yerel siralama gosterildi; Gemini arka planda yeniden siralamayi deniyor.'
+              ? 'Yerel sıralama gösterildi; Gemini arka planda yeniden sıralamayı deniyor.'
             : status.hasKey
-              ? 'Gemini devrede; ancak yalnizca gecerli yerel cozumleri yeniden siralar.'
-              : 'Gemini kapali oldugu icin yerel siralama korunuyor.'
+              ? 'Gemini devrede; ancak yalnızca geçerli yerel çözümleri yeniden sıralar.'
+              : 'Gemini kapalı olduğu için yerel sıralama korunuyor.'
         }
       />
       <StatusPill
-        label="Dogrulama"
+        label="Doğrulama"
         value={validationValue}
         color={validationColor}
         title={
           !status.hasKey
-            ? 'Gemini anahtari olmadigi icin gorsel dogrulama kapali.'
+            ? 'Gemini anahtarı olmadığı için görsel doğrulama kapalı.'
             : status.validation === 'running'
-              ? 'Harita goruntusu Gemini ile dogrulaniyor.'
+              ? 'Harita görüntüsü Gemini ile doğrulanıyor.'
               : status.validation === 'done'
-                ? 'Gorsel dogrulama tamamlandi.'
+                ? 'Görsel doğrulama tamamlandı.'
                 : status.validation === 'timeout'
-                  ? 'Gemini gorsel dogrulama gec yanit verdi; yerel geometri sonucu korunuyor.'
+                  ? 'Gemini görsel doğrulama geç yanıt verdi; yerel geometri sonucu korunuyor.'
                 : status.validation === 'error'
                   ? status.error
-                    ? `Gemini kullanilamadi: ${status.error}`
-                    : 'Gorsel dogrulama tamamlanamadi.'
-                  : 'Analizden sonra gorsel dogrulama calismaya hazir.'
+                    ? `Gemini kullanılamadı: ${status.error}`
+                    : 'Görsel doğrulama tamamlanamadı.'
+                  : 'Analizden sonra görsel doğrulama çalışmaya hazır.'
         }
       />
     </div>
@@ -154,7 +154,7 @@ export default function Navbar({ onLoadScenario, isDark, onToggleTheme, aiStatus
             ARES<span className="text-accent">-Reflect</span>
           </div>
           <div className="font-head text-[9px] uppercase tracking-[0.3em] text-muted">
-            Terminal Yerlesim Sistemi
+            Terminal Yerleşim Sistemi
           </div>
         </div>
       </div>

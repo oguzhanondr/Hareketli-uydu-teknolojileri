@@ -26,7 +26,7 @@ export function useAnalysis() {
     setLoading(true)
     setError(null)
     setValidation({ status: 'idle', result: null })
-    setStatusMessage('Yerel analiz yapiliyor...')
+    setStatusMessage('Yerel analiz yapılıyor...')
 
     try {
       await new Promise((r) => setTimeout(r, 30))
@@ -43,10 +43,10 @@ export function useAnalysis() {
           const count = t.irs.length
           const text =
             count === 0
-              ? 'Yerel motor bu terminal icin fiziksel olarak gecerli IRS bulamadi; bu nedenle terminal puani dusuk kaldi.'
+              ? 'Yerel motor bu terminal için fiziksel olarak geçerli IRS bulamadı; bu nedenle terminal puanı düşük kaldı.'
               : borderline > 0
-                ? `Yerel motor bu terminal icin ${count} gecerli IRS buldu; ${borderline} aday sinirda kalite bandinda oldugu icin dikkat etiketiyle tutuldu.`
-                : `Yerel motor bu terminal icin ${count} gecerli IRS buldu ve acik hat, kapsama ve dagilim dengesine gore en iyi seti secti.`
+                ? `Yerel motor bu terminal için ${count} geçerli IRS buldu; ${borderline} aday sınırda kalite bandında olduğu için dikkat etiketiyle tutuldu.`
+                : `Yerel motor bu terminal için ${count} geçerli IRS buldu ve açık hat, kapsama ve dağılım dengesine göre en iyi seti seçti.`
           return [t.id, text]
         })
       )

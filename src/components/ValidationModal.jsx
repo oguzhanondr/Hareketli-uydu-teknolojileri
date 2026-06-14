@@ -13,7 +13,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
   const valid = res.valid === true
   const failed = res.valid === false
   const color = valid ? '#22c55e' : failed ? '#ef4444' : '#eab308'
-  const title = valid ? 'Yerlesim Dogrulandi' : failed ? 'Yerlesim Uyarisi' : 'Dogrulama Sonucu'
+  const title = valid ? 'Yerleşim Doğrulandı' : failed ? 'Yerleşim Uyarısı' : 'Doğrulama Sonucu'
 
   return (
     <div
@@ -36,7 +36,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
             <div>
               <h2 className="font-head text-xl font-bold tracking-wide text-text">{title}</h2>
               <div className="font-head text-[11px] uppercase tracking-[0.25em] text-muted">
-                Gemini Gorsel Dogrulama
+                Gemini Görsel Doğrulama
               </div>
             </div>
           </div>
@@ -55,13 +55,13 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
               <span className="font-head text-3xl font-bold tabular-nums" style={{ color }}>
                 %{res.confidence ?? 0}
               </span>
-              <span className="font-head text-xs text-muted">GUVEN</span>
+              <span className="font-head text-xs text-muted">GÜVEN</span>
             </div>
             <span
               className="rounded-md px-2.5 py-1 font-head text-xs font-bold uppercase tracking-wide"
               style={{ backgroundColor: `${color}1f`, color }}
             >
-              {valid ? 'Gecerli' : failed ? 'Gecersiz' : 'Belirsiz'}
+              {valid ? 'Geçerli' : failed ? 'Geçersiz' : 'Belirsiz'}
             </span>
           </div>
 
@@ -79,7 +79,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
               </ul>
             ) : (
               <div className="rounded-md border border-border bg-card p-3 text-[13px] text-los">
-                Gorsel olarak belirgin bir sorun bulunamadi.
+                Görsel olarak belirgin bir sorun bulunamadı.
               </div>
             )}
           </div>
@@ -92,7 +92,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
               }}
               className="mt-4 w-full rounded-md bg-accent px-4 py-2 font-head text-sm font-bold tracking-wide text-[#06121f] transition-all duration-200 hover:shadow-glow-lg"
             >
-              Tum Pipeline'i Yeniden Calistir
+              Tüm Pipeline'ı Yeniden Çalıştır
             </button>
           )}
         </div>

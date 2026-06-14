@@ -57,11 +57,11 @@ Important notes:
 ## User Workflow
 
 1. Click `Depremzede Ekle` and place at least 3 survivor markers.
-2. Click `Enkaz Sec` and mark at least 1 collapsed building.
-3. Use `Kaldir` to remove a survivor marker or remove the collapsed-building mark from a building.
+2. Click `Enkaz Seç` and mark at least 1 collapsed building.
+3. Use `Kaldır` to remove a survivor marker or remove the collapsed-building mark from a building.
 4. Click `Analiz Et`.
 5. Review terminal cards, IRS tables, map lines, and optional Gemini validation.
-6. Export the result with `PDF Disa Aktar` if needed.
+6. Export the result with `PDF Dışa Aktar` if needed.
 
 ## Placement Pipeline
 
@@ -203,19 +203,19 @@ That means an IRS path can cross a collapsed building footprint without being tr
 
 The top bar shows where each part of the result came from:
 
-- `Yerlesim: Yerel` means placement is from the deterministic local engine.
-- `Aciklama: Yerel`, `Calisiyor`, or `Gemini` shows explanation source.
-- `Rerank: Yerel`, `Calisiyor`, or `Gemini` shows terminal ordering source.
-- `Dogrulama: Hazir`, `Calisiyor`, `Gemini`, or `Kapali` shows visual validation state.
+- `Yerleşim: Yerel` means placement is from the deterministic local engine.
+- `Açıklama: Yerel`, `Çalışıyor`, or `Gemini` shows explanation source.
+- `Rerank: Yerel`, `Çalışıyor`, or `Gemini` shows terminal ordering source.
+- `Doğrulama: Hazır`, `Çalışıyor`, `Gemini`, or `Kapalı` shows visual validation state.
 
 ## Quality Bands
 
 IRS quality scores are absolute 0-100 style scores in the UI:
 
-- `85-100`: Guclu
+- `85-100`: Güçlü
 - `70-84`: Uygun
-- `55-69`: Sinirda
-- `0-54`: Gecersiz or hidden from recommendation output
+- `55-69`: Sınırda
+- `0-54`: Geçersiz or hidden from recommendation output
 
 ## Repository Hygiene
 

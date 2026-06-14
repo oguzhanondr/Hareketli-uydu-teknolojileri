@@ -146,13 +146,13 @@ export function reflectionEfficiency(thetaInDeg, thetaOutDeg) {
 
 const CARDINALS_TR = [
   'Kuzey',
-  'Kuzeydogu',
-  'Dogu',
-  'Guneydogu',
-  'Guney',
-  'Guneybati',
-  'Bati',
-  'Kuzeybati',
+  'Kuzeydoğu',
+  'Doğu',
+  'Güneydoğu',
+  'Güney',
+  'Güneybatı',
+  'Batı',
+  'Kuzeybatı',
 ]
 
 export function cardinalTR(bearingDeg) {

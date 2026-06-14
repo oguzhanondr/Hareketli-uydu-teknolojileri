@@ -425,14 +425,14 @@ function annotateCandidate(candidate, targetCount) {
 
   if (candidate.siteClearance < 0) {
     quality *= 0.12
-    reasons.push('IRS noktasi enkaz alaninin icine dusuyor.')
+    reasons.push('IRS noktası enkaz alanının içine düşüyor.')
   } else if (candidate.siteClearance < SITE_CLEARANCE_MIN_M) {
     quality *= 0.55
-    reasons.push('IRS noktasi enkaza fazla yakin.')
+    reasons.push('IRS noktası enkaza fazla yakın.')
   }
   if (candidate.reflection_efficiency < LOW_REFLECTION_MIN) {
     quality *= 0.45
-    reasons.push('Yansima acisi verimsiz kaldigi icin link zayifliyor.')
+    reasons.push('Yansıma açısı verimsiz kaldığı için link zayıflıyor.')
   }
   if (candidate.term_blocked || candidate.vic_blocked) {
     quality = Math.min(quality, 0.24)
@@ -440,7 +440,7 @@ function annotateCandidate(candidate, targetCount) {
   }
   if (coverageScore <= 0) {
     quality *= 0.5
-    reasons.push('Acik kapsama olusmadi.')
+    reasons.push('Açık kapsama oluşmadı.')
   }
 
   candidate.coverage_score = round(coverageScore)
@@ -465,9 +465,9 @@ function annotateCandidate(candidate, targetCount) {
   candidate.constrained = candidate.validity_status === 'borderline'
   candidate.constrained_reason =
     candidate.validity_status === 'invalid'
-      ? reasons[0] || 'Fiziksel olarak gecerli bir iki bacakli hat kurulamadi.'
+      ? reasons[0] || 'Fiziksel olarak geçerli bir iki bacaklı hat kurulamadı.'
       : candidate.validity_status === 'borderline'
-        ? reasons[0] || 'Acik iki bacak var; ancak kalite sinirda kaldi.'
+        ? reasons[0] || 'Açık iki bacak var; ancak kalite sınırda kaldı.'
         : ''
   candidate.blocker_building_id = candidate.term_blocker_id || candidate.vic_blocker_id || null
   candidate.blocker_building_name = candidate.term_blocker_name || candidate.vic_blocker_name || null
@@ -534,10 +534,10 @@ function buildShortlist(candidates) {
 function setSelectionReason(candidate) {
   candidate.selection_reason =
     candidate.quality_score >= STRONG_QUALITY_THRESHOLD
-      ? 'Acik iki bacak, guclu kalite puani ve farkli kapsama katkisi sagliyor.'
+      ? 'Açık iki bacak, güçlü kalite puanı ve farklı kapsama katkısı sağlıyor.'
       : candidate.quality_score >= GOOD_QUALITY_THRESHOLD
-        ? 'Acik iki bacak ve dengeli kapsama ile gecerli bir oneridir.'
-        : 'Acik iki bacak var; ancak kapsama veya link kalitesi sinirda kaldigi icin dikkatli kullanilmalidir.'
+        ? 'Açık iki bacak ve dengeli kapsama ile geçerli bir öneridir.'
+        : 'Açık iki bacak var; ancak kapsama veya link kalitesi sınırda kaldığı için dikkatli kullanılmalıdır.'
 }
 
 export function selectBestIrsSet(candidates, totalSurvivors = 0, maxCount = 3) {
@@ -822,24 +822,24 @@ function chooseTerminalCombination(groupedRankings) {
 function describeTerminalSelection(terminal, cluster, debris = []) {
   const countText =
     terminal.validIrsCount >= 3
-      ? '3 gecerli IRS cikardi'
+      ? '3 geçerli IRS çıkardı'
       : terminal.validIrsCount > 0
-        ? `${terminal.validIrsCount} gecerli IRS cikardi`
-        : 'gecerli IRS cikaramadi'
+        ? `${terminal.validIrsCount} geçerli IRS çıkardı`
+        : 'geçerli IRS çıkaramadı'
   const nearestDebris = debris.length
     ? Math.round(Math.min(...debris.map((d) => distanceM(terminal, d))))
     : null
   return (
-    `${cluster.members.length} depremzede icin bu nokta secildi; ${countText}. ` +
-    `Terminal puani IRS set kalitesi %${Math.round(terminal.selectionMetrics.irsSetQuality * 100)}, ` +
-    `acik gorus koridoru %${Math.round(terminal.selectionMetrics.corridor * 100)}, ` +
-    `dogrudan gorus %${Math.round(terminal.selectionMetrics.directVisibility * 100)} ve ` +
+    `${cluster.members.length} depremzede için bu nokta seçildi; ${countText}. ` +
+    `Terminal puanı IRS set kalitesi %${Math.round(terminal.selectionMetrics.irsSetQuality * 100)}, ` +
+    `açık görüş koridoru %${Math.round(terminal.selectionMetrics.corridor * 100)}, ` +
+    `doğrudan görüş %${Math.round(terminal.selectionMetrics.directVisibility * 100)} ve ` +
     `yerel kapsama %${Math.round(terminal.subScores.coverage * 100)} ile olustu.` +
     (nearestDebris !== null
       ? ` En yakin enkaz ${nearestDebris} m uzakta ve enkaz koridor uygunlugu %${Math.round(
           terminal.selectionMetrics.debrisFitness * 100
-        )} oldugu icin kurulum nokta secimi acik alana gore degil gorus koridoruna gore yapildi.`
-      : ' Acik kurulum alani mevcut.')
+        )} olduğu için kurulum nokta seçimi açık alana göre değil görüş koridoruna göre yapıldı.`
+      : ' Açık kurulum alanı mevcut.')
   )
 }
 
@@ -1082,13 +1082,13 @@ function buildIrsDecision(irs, peers) {
   const shortest = others.length > 0 && others.every((p) => p.total_path_m >= irs.total_path_m)
   const cautionText =
     irs.validity_status === 'borderline'
-      ? ` ${irs.constrained_reason || 'Bu onerinin kalitesi sinirda kaldigi icin dikkatli kullanilmalidir.'}`
+      ? ` ${irs.constrained_reason || 'Bu önerinin kalitesi sınırda kaldığı için dikkatli kullanılmalıdır.'}`
       : ''
 
   return (
-    `${irs.name} secildi; acik hatla ${irs.survivors_covered_clear} depremzedeye ulasiyor, ` +
-    `kalite puani %${Math.round(irs.quality_score * 100)} ve toplam yol ${irs.total_path_m} m` +
-    `${shortest ? ' ile secilen adaylar icinde en kisa' : ''}.` +
+    `${irs.name} seçildi; açık hatla ${irs.survivors_covered_clear} depremzedeye ulaşıyor, ` +
+    `kalite puanı %${Math.round(irs.quality_score * 100)} ve toplam yol ${irs.total_path_m} m` +
+    `${shortest ? ' ile seçilen adaylar içinde en kısa' : ''}.` +
     cautionText
   )
 }

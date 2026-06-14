@@ -158,11 +158,11 @@ function ValidationBadge({ validation, onOpen }) {
   if (status === 'running') {
     color = '#00d4ff'
     icon = 'o'
-    label = 'Dogrulaniyor...'
+    label = 'Doğrulanıyor...'
   } else if (status === 'done' && result?.valid === true) {
     color = '#22c55e'
     icon = 'OK'
-    label = 'Yerlesim Dogrulandi'
+    label = 'Yerleşim Doğrulandı'
   } else {
     return null
   }
@@ -172,7 +172,7 @@ function ValidationBadge({ validation, onOpen }) {
     <button
       onClick={() => clickable && onOpen()}
       disabled={!clickable}
-      title={clickable ? 'Dogrulama raporunu ac' : ''}
+      title={clickable ? 'Doğrulama raporunu aç' : ''}
       className={`absolute right-3 top-3 z-[600] flex items-center gap-2 rounded-md border px-3 py-1.5 font-head text-xs font-semibold shadow-lg backdrop-blur ${
         clickable ? 'cursor-pointer hover:brightness-125' : ''
       }`}
@@ -209,11 +209,11 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
       </button>
       <button className={btn(mode === 'enkaz')} onClick={() => toggleMode('enkaz')}>
         <span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-[2px] bg-debris align-middle" />
-        Enkaz Sec
+        Enkaz Seç
       </button>
       <button className={btn(mode === 'remove')} onClick={() => toggleMode('remove')}>
         <span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full border border-current align-middle" />
-        Kaldir
+        Kaldır
       </button>
       <button
         className="px-3 py-1.5 rounded-md font-head font-semibold text-sm tracking-wide border border-border bg-card text-muted hover:text-debris hover:border-debris transition-all duration-200"
@@ -224,11 +224,11 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
 
       <span className="font-head text-[11px] uppercase tracking-wide">
         {buildingStatus.loading ? (
-          <span className="text-accent">* Binalar yukleniyor...</span>
+          <span className="text-accent">* Binalar yükleniyor...</span>
         ) : buildingStatus.error ? (
-          <span className="text-debris">* Bina verisi alinamadi</span>
+          <span className="text-debris">* Bina verisi alınamadı</span>
         ) : buildingStatus.tooFar ? (
-          <span className="text-muted">* Binalar icin yakinlastirin</span>
+          <span className="text-muted">* Binalar için yakınlaştırın</span>
         ) : null}
       </span>
 
@@ -253,9 +253,9 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
               ? 'bg-accent text-[#06121f] shadow-glow animate-pulseGlow hover:shadow-glow-lg'
               : 'bg-card text-muted border border-border cursor-not-allowed'
           }`}
-          title={canAnalyze ? 'Yerlesim analizini calistir' : 'En az 3 depremzede ve 1 enkaz gerekli'}
+          title={canAnalyze ? 'Yerleşim analizini çalıştır' : 'En az 3 depremzede ve 1 enkaz gerekli'}
         >
-          {loading ? 'Analiz yapiliyor...' : 'Analiz Et'}
+          {loading ? 'Analiz yapılıyor...' : 'Analiz Et'}
         </button>
       </div>
     </div>
@@ -403,13 +403,13 @@ export default function MapPanel({
                   <Tooltip direction="top" opacity={1} sticky>
                     {enkazMode
                       ? selected
-                        ? 'Enkaz isaretini kaldir'
-                        : 'Enkaz olarak isaretle'
+                        ? 'Enkaz işaretini kaldır'
+                        : 'Enkaz olarak işaretle'
                       : selected
-                        ? 'Enkaz isaretini kaldir'
+                        ? 'Enkaz işaretini kaldır'
                         : highlightedBlocker
                           ? 'Bu bina sinyal hattini kesiyor'
-                          : 'Kaldirilacak enkaz degil'}
+                          : 'Kaldırılacak enkaz değil'}
                     {b.name ? `  -  ${b.name}` : ''}
                   </Tooltip>
                 )}
@@ -435,7 +435,7 @@ export default function MapPanel({
             >
               {removeMode && (
                 <Tooltip direction="top" opacity={1}>
-                  Depremzedeyi kaldir
+                  Depremzedeyi kaldır
                 </Tooltip>
               )}
             </Marker>
@@ -459,7 +459,7 @@ export default function MapPanel({
                     }}
                   >
                     <Tooltip direction="center" opacity={0.95} sticky>
-                      Terminal -&gt; {u.name}: %{Math.round((u.term_los ?? 0) * 100)} aciklik
+                      Terminal -&gt; {u.name}: %{Math.round((u.term_los ?? 0) * 100)} açıklık
                       {u.term_blocker_name ? `  -  Engelleyen: ${u.term_blocker_name}` : ''}
                     </Tooltip>
                   </Polyline>
@@ -532,7 +532,7 @@ export default function MapPanel({
                     {u.mount_type === 'cephe'
                       ? `${u.facade} cephe  -  ~${u.mount_height_m} m`
                       : `Serbest direk  -  ~${u.mount_height_m} m`}
-                    {u.validity_status === 'borderline' ? <><br />Sinirda ama gecerli</> : null}
+                    {u.validity_status === 'borderline' ? <><br />Sınırda ama geçerli</> : null}
                   </Tooltip>
                 </Marker>
               ))}

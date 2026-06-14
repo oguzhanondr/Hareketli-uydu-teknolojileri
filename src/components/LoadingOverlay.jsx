@@ -12,7 +12,7 @@ export default function LoadingOverlay({ message }) {
         </div>
         <div className="text-center">
           <div className="font-head text-lg font-semibold tracking-wide text-accent">
-            {message || 'Isleniyor...'}
+            {message || 'İşleniyor...'}
           </div>
           <div className="mt-1 font-head text-xs uppercase tracking-[0.3em] text-muted">
             ARES-Reflect - Yerel Optimizasyon

@@ -49,7 +49,7 @@ function buildPdf(result, meta) {
     doc.setTextColor(0, 200, 255)
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
-    doc.text('TERMINAL YERLESIM SISTEMI', MARGIN, 44)
+    doc.text(tr('TERMİNAL YERLEŞİM SİSTEMİ'), MARGIN, 44)
     doc.setTextColor(180, 195, 220)
     doc.text(tr(title), PAGE_W - MARGIN, 30, { align: 'right' })
     doc.text(new Date().toLocaleString('tr-TR'), PAGE_W - MARGIN, 44, { align: 'right' })
@@ -105,7 +105,7 @@ function buildPdf(result, meta) {
     y += 26
   }
 
-  pageHeader('Gorev Raporu')
+  pageHeader('Görev Raporu')
 
   doc.setFillColor(245, 248, 252)
   doc.setDrawColor(...LINE)
@@ -113,7 +113,7 @@ function buildPdf(result, meta) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.setTextColor(...INK)
-  doc.text(tr('Senaryo Ozeti'), MARGIN + 12, y + 18)
+  doc.text(tr('Senaryo Özeti'), MARGIN + 12, y + 18)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
   doc.setTextColor(...MUTED)
@@ -123,12 +123,12 @@ function buildPdf(result, meta) {
     MARGIN + 12,
     y + 36
   )
-  doc.text(tr(`Yerlesim motoru: ${meta.placementSource === 'local' ? 'Yerel' : meta.placementSource}`), MARGIN + 12, y + 52)
-  doc.text(tr(`Aciklama kaynagi: ${meta.explanationSource === 'gemini' ? 'Gemini' : 'Yerel motor'}`), MARGIN + 12, y + 66)
-  doc.text(tr(`Rerank: ${meta.rerankSource === 'gemini' ? 'Gemini' : 'Kapali'}`), MARGIN + 250, y + 66)
+  doc.text(tr(`Yerleşim motoru: ${meta.placementSource === 'local' ? 'Yerel' : meta.placementSource}`), MARGIN + 12, y + 52)
+  doc.text(tr(`Açıklama kaynağı: ${meta.explanationSource === 'gemini' ? 'Gemini' : 'Yerel motor'}`), MARGIN + 12, y + 66)
+  doc.text(tr(`Rerank: ${meta.rerankSource === 'gemini' ? 'Gemini' : 'Kapalı'}`), MARGIN + 250, y + 66)
   y += 92
 
-  heading('Terminal Yerlesimleri')
+  heading('Terminal Yerleşimleri')
   for (const t of result.terminals) {
     body(`${t.name}  -  Puan ${t.scorePct}/100`, { font: 'bold', size: 11, gap: 2 })
     kvRow([
@@ -162,15 +162,15 @@ function buildPdf(result, meta) {
         ['FRESNEL', `%${pct(u.fresnel_clear)}`],
       ])
       kvRow([
-        ['MONTAJ', u.mount_type === 'cephe' ? `${u.facade} ${u.facade_bearing} deg` : 'Serbest direk'],
+        ['MONTAJ', u.mount_type === 'cephe' ? `${u.facade} ${u.facade_bearing}°` : 'Serbest direk'],
         ['MONTAJ YUK.', `${u.mount_height_m} m`],
         ['BINA YUK.', u.building_height_m ? `${u.building_height_m} m` : '-'],
-        ['DURUM', u.validity_status === 'borderline' ? 'Sinirda ama gecerli' : 'Gecerli oneri'],
+        ['DURUM', u.validity_status === 'borderline' ? 'Sınırda ama geçerli' : 'Geçerli öneri'],
       ])
       if (u.decision) body(`Karar gerekcesi: ${u.decision}`, { size: 9, color: ACCENT, gap: 4 })
-      body(`Ozet: ${u.summary}`, { size: 9, gap: 4 })
+      body(`Özet: ${u.summary}`, { size: 9, gap: 4 })
       body(`Teknik: ${u.technical}`, { size: 9, color: [60, 72, 92], gap: 4 })
-      if (u.comparison) body(`Karsilastirma: ${u.comparison}`, { size: 9, color: MUTED, gap: 10 })
+      if (u.comparison) body(`Karşılaştırma: ${u.comparison}`, { size: 9, color: MUTED, gap: 10 })
     }
   }
 
@@ -180,7 +180,7 @@ function buildPdf(result, meta) {
     doc.setFontSize(8)
     doc.setTextColor(...MUTED)
     doc.text(`Sayfa ${p} / ${total}`, PAGE_W - MARGIN, PAGE_H - 20, { align: 'right' })
-    doc.text(tr('ARES-Reflect  -  TEKNOFEST Mobil Uydu Terminali Yarismasi'), MARGIN, PAGE_H - 20)
+    doc.text(tr('ARES-Reflect  -  TEKNOFEST Mobil Uydu Terminali Yarışması'), MARGIN, PAGE_H - 20)
   }
 
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
@@ -193,14 +193,14 @@ export default function ExportPDF({ result, meta }) {
     <button
       disabled={disabled}
       onClick={() => result && buildPdf(result, meta)}
-      title={disabled ? 'Once analiz calistirin' : 'PDF raporu disa aktar'}
+      title={disabled ? 'Önce analiz çalıştırın' : 'PDF raporu dışa aktar'}
       className={`flex items-center gap-2 rounded-md px-4 py-1.5 font-head text-sm font-semibold tracking-wide transition-all duration-200 ${
         disabled
           ? 'cursor-not-allowed border border-border bg-card text-muted'
           : 'border border-accent bg-accent/10 text-accent hover:bg-accent/20 hover:shadow-glow'
       }`}
     >
-      <span>PDF</span> PDF Disa Aktar
+      <span>PDF</span> PDF Dışa Aktar
     </button>
   )
 }

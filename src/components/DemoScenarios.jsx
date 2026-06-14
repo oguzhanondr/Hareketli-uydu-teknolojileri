@@ -5,7 +5,7 @@ const DIFFICULTY_COLOR = {
   Basit: '#22c55e',
   Orta: '#38bdf8',
   Zor: '#eab308',
-  Asiri: '#ef4444',
+  Aşırı: '#ef4444',
 }
 
 export default function DemoScenarios({ onLoad }) {

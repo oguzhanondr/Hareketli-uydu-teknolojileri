@@ -27,7 +27,7 @@ export default function IRSCard({ irs, index, onOpen }) {
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-head uppercase tracking-wide">
         <span style={{ color: nlosColor(irs.nlos_status) }}>* {nlosLabel(irs.nlos_status)}</span>
         <span className="text-muted"> - </span>
-        <span className="text-muted">{irs.survivors_covered_clear} acik kapsama</span>
+        <span className="text-muted">{irs.survivors_covered_clear} açık kapsama</span>
         <span className="text-muted"> - </span>
         <span className="text-muted">{irs.distance_to_terminal} m</span>
         {typeof irs.link_gain_db === 'number' && (
@@ -53,7 +53,7 @@ export default function IRSCard({ irs, index, onOpen }) {
 
       {irs.validity_status === 'borderline' && irs.constrained_reason && (
         <div className="mt-1 text-[10px] font-head uppercase tracking-wide text-amber-300">
-          Sinirda: {irs.constrained_reason}
+          Sınırda: {irs.constrained_reason}
         </div>
       )}
 

@@ -4,8 +4,8 @@ const TH = 'px-2 py-2 font-head text-[10px] font-semibold uppercase tracking-wid
 const TD = 'px-2 py-1.5 whitespace-nowrap'
 
 function statusText(irs) {
-  if (irs.validity_status === 'borderline') return { label: 'Sinirda', color: '#eab308' }
-  return { label: 'Gecerli', color: '#22c55e' }
+  if (irs.validity_status === 'borderline') return { label: 'Sınırda', color: '#eab308' }
+  return { label: 'Geçerli', color: '#22c55e' }
 }
 
 export default function IRSScoreTable({ irs, onOpen }) {
@@ -20,8 +20,8 @@ export default function IRSScoreTable({ irs, onOpen }) {
             <th className={TH}>T-&gt;IRS</th>
             <th className={TH}>IRS-&gt;Hedef</th>
             <th className={TH}>Durum</th>
-            <th className={TH}>Acik Kapsama</th>
-            <th className={TH}>Kazanc</th>
+            <th className={TH}>Açık Kapsama</th>
+            <th className={TH}>Kazanç</th>
             <th className={TH}>Kalite</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@ export default function IRSScoreTable({ irs, onOpen }) {
               <tr
                 key={u.id}
                 onClick={() => onOpen(u)}
-                title="Detaylari ac"
+                title="Detayları aç"
                 className="cursor-pointer border-t border-border/60 tabular-nums transition-colors hover:bg-card-hover"
               >
                 <td className={`${TD} font-head font-bold text-text`}>

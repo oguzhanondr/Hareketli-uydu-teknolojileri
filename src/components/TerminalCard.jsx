@@ -2,9 +2,9 @@ import { useState } from 'react'
 
 function mountLabel(mount) {
   if (!mount) return null
-  if (mount.type === 'acik alan') return `Acik alan  -  serbest direk  -  ~${mount.mount_height_m} m`
+  if (mount.type === 'acik alan') return `Açık alan  -  serbest direk  -  ~${mount.mount_height_m} m`
   const host = mount.host_building_name || 'Bina'
-  if (mount.type === 'cati') return `${host}  -  cati  -  ~${mount.mount_height_m} m`
+  if (mount.type === 'cati') return `${host}  -  çatı  -  ~${mount.mount_height_m} m`
   return `${host}  -  ${mount.facade} cephe  -  ~${mount.mount_height_m} m`
 }
 
@@ -57,12 +57,12 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
             : 'border border-debris/40 bg-debris/10 text-debris'
         }`}
       >
-        {terminal.validIrsCount} gecerli IRS
+        {terminal.validIrsCount} geçerli IRS
       </span>
 
       {borderlineCount > 0 && (
         <span className="mt-1 inline-flex items-center gap-1 rounded-md border border-amber-400/40 bg-amber-400/10 px-1.5 py-0.5 font-head text-[10px] uppercase tracking-wide text-amber-300">
-          {borderlineCount} sinirda aday
+          {borderlineCount} sınırda aday
         </span>
       )}
 
@@ -72,7 +72,7 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
           onSelect(terminal.id)
           setExpanded((v) => !v)
         }}
-        title={expanded ? 'Daralt' : 'Tumunu oku'}
+        title={expanded ? 'Daralt' : 'Tümünü oku'}
         className={`mt-1.5 cursor-pointer text-[11px] leading-snug text-muted transition-all ${
           expanded ? '' : 'line-clamp-2'
         }`}

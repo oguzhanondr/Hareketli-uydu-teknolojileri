@@ -10,15 +10,15 @@ export function rankColor(rank) {
 
 export function qualityBadge(score) {
   const pctScore = typeof score === 'number' ? Math.round(score * 100) : 0
-  if (pctScore >= 85) return { label: 'Guclu', color: '#22c55e' }
+  if (pctScore >= 85) return { label: 'Güçlü', color: '#22c55e' }
   if (pctScore >= 70) return { label: 'Uygun', color: '#00d4ff' }
-  if (pctScore >= 55) return { label: 'Sinirda', color: '#eab308' }
-  return { label: 'Gecersiz', color: '#ef4444' }
+  if (pctScore >= 55) return { label: 'Sınırda', color: '#eab308' }
+  return { label: 'Geçersiz', color: '#ef4444' }
 }
 
 export const NLOS = {
-  CLEAR: { color: '#22c55e', label: 'Acik Hat' },
-  PARTIAL_NLoS: { color: '#eab308', label: 'Kismi Engelli Hat' },
+  CLEAR: { color: '#22c55e', label: 'Açık Hat' },
+  PARTIAL_NLoS: { color: '#eab308', label: 'Kısmi Engelli Hat' },
   FULL_NLoS: { color: '#ef4444', label: 'Engelli Hat' },
 }
 

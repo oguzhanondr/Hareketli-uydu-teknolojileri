@@ -202,5 +202,5 @@ export async function fetchBuildings(viewport) {
     return fallback
   }
 
-  throw lastErr || new Error('Bina verisi alinamadi')
+  throw lastErr || new Error('Bina verisi alınamadı')
 }

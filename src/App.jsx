@@ -115,7 +115,7 @@ export default function App() {
     (scenario) => {
       analysis.reset()
       markers.clearAll()
-      setDemoError('Demo senaryosu icin bina verisi yukleniyor. Lutfen kisa bir sure bekleyin.')
+      setDemoError('Demo senaryosu için bina verisi yükleniyor. Lütfen kısa bir süre bekleyin.')
       if (pendingDemo.current?.timer) clearTimeout(pendingDemo.current.timer)
       const timer = setTimeout(() => {
         const pd = pendingDemo.current
@@ -125,7 +125,7 @@ export default function App() {
         if (res.enkazIds.length > 0) markers.setScene(res.survivors, res.enkazIds)
         else {
           setDemoError(
-            'Bina verisi henuz alinamadi. Haritada biraz yakinlastirip 10-20 saniye bekledikten sonra demo senaryoyu tekrar secin.'
+            'Bina verisi henüz alınamadı. Haritada biraz yakınlaştırıp 10-20 saniye bekledikten sonra demo senaryoyu tekrar seçin.'
           )
         }
       }, 25000)
@@ -225,7 +225,7 @@ export default function App() {
         <section className="flex h-full w-[40%] flex-col overflow-hidden bg-panel">
           <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
             <h2 className="font-head text-base font-bold uppercase tracking-[0.2em] text-text">
-              Analiz Sonuclari
+              Analiz Sonuçları
             </h2>
           </div>
 
@@ -263,13 +263,13 @@ export default function App() {
                 <div>
                   <div className="mb-2 flex items-center gap-2">
                     <span className="font-head text-[11px] uppercase tracking-[0.25em] text-muted">
-                      {selectedTerminal.name}  -  {selectedTerminal.irs.length} Gecerli IRS
+                      {selectedTerminal.name}  -  {selectedTerminal.irs.length} Geçerli IRS
                     </span>
                     <span className="h-px flex-1 bg-border" />
                   </div>
                   {analysis.selectionReasoning?.[selectedTerminal.id] && (
                     <p className="mb-2 text-[11px] italic leading-snug text-muted">
-                      Yerel secim: {analysis.selectionReasoning[selectedTerminal.id]}
+                      Yerel seçim: {analysis.selectionReasoning[selectedTerminal.id]}
                     </p>
                   )}
                   {selectedTerminal.rerank_reason && analysis.rerankSource === 'gemini' && (
@@ -295,8 +295,8 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-[12px] leading-snug text-amber-100">
-                      Bu terminal icin fiziksel olarak gecerli IRS bulunamadi. Terminal puani gosteriliyor ama
-                      sahaya onerilecek IRS cikmadi.
+                      Bu terminal için fiziksel olarak geçerli IRS bulunamadı. Terminal puanı gösteriliyor ama
+                      sahaya önerilecek IRS çıkmadı.
                     </div>
                   )}
                 </div>
@@ -325,12 +325,12 @@ function EmptyState({ markers }) {
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-accent/40 bg-accent/5 text-2xl text-accent shadow-glow">
         o
       </div>
-      <h3 className="font-head text-lg font-bold tracking-wide text-text">Henuz analiz yok</h3>
+      <h3 className="font-head text-lg font-bold tracking-wide text-text">Henüz analiz yok</h3>
       <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
-        <span className="font-semibold text-debris">Enkaz Sec</span> ile haritadaki binalara tiklayip
-        cokmus binalari isaretleyin, <span className="font-semibold text-survivor">Depremzede Ekle</span>{' '}
-        ile depremzede birakin, gerekirse <span className="font-semibold text-text">Kaldir</span> modu ile
-        hatali isaretleri silin ve sonra <span className="font-bold text-accent">Analiz Et</span>'e basin.
+        <span className="font-semibold text-debris">Enkaz Seç</span> ile haritadaki binalara tıklayıp
+        çökmüş binaları işaretleyin, <span className="font-semibold text-survivor">Depremzede Ekle</span>{' '}
+        ile depremzede bırakın, gerekirse <span className="font-semibold text-text">Kaldır</span> modu ile
+        hatalı işaretleri silin ve sonra <span className="font-bold text-accent">Analiz Et</span>'e basın.
       </p>
       <div className="mt-5 flex items-center gap-4 font-head text-xs">
         <Req ok={markers.counts.survivors >= 3} label={`Depremzede ${markers.counts.survivors}/3`} />
