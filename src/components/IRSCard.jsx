@@ -9,7 +9,7 @@ export default function IRSCard({ irs, index, onOpen }) {
     <button
       onClick={() => onOpen(irs)}
       style={{ animationDelay: `${index * 100}ms` }}
-      className="flex w-full flex-col rounded-lg border border-border bg-card p-3 text-left animate-fadeInUp transition-all duration-200 hover:border-accent/60 hover:bg-card-hover hover:shadow-glow"
+      className="flex w-full flex-col rounded-lg border border-border bg-card p-3 text-left animate-fadeInUp transition-all duration-200 hover:border-accent/35 hover:bg-card-hover hover:shadow-glow"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

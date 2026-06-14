@@ -9,27 +9,27 @@
    ============================================================ */
 :root,
 .dark {
-  --bg: #0a0f1e;
-  --panel: #0d1426;
-  --card: #111a30;
-  --card-hover: #16223f;
-  --border: #1e2b4d;
-  --text: #eaf2ff;
-  --muted: #8aa0c6;
-  --accent: #00d4ff;
-  --grid-dot: rgba(0, 212, 255, 0.06);
+  --bg: #0c1220;
+  --panel: #101827;
+  --card: #151f32;
+  --card-hover: #1a2740;
+  --border: #24324f;
+  --text: #e8eef9;
+  --muted: #91a0bd;
+  --accent: #18aac8;
+  --grid-dot: rgba(120, 157, 205, 0.05);
 }
 
 .light {
-  --bg: #f4f6f9;
+  --bg: #f3f5f8;
   --panel: #ffffff;
-  --card: #ffffff;
-  --card-hover: #eef2f8;
-  --border: #d4dceb;
-  --text: #0a0f1e;
-  --muted: #5b6b88;
-  --accent: #0098c7;
-  --grid-dot: rgba(10, 15, 30, 0.05);
+  --card: #fbfcfe;
+  --card-hover: #f1f5fa;
+  --border: #d7deea;
+  --text: #111827;
+  --muted: #66758f;
+  --accent: #0b8aa8;
+  --grid-dot: rgba(17, 24, 39, 0.035);
 }
 
 /* Smooth 300ms theme transitions across the board. */
@@ -48,7 +48,10 @@ body,
 }
 
 body {
-  background-color: var(--bg);
+  background:
+    radial-gradient(circle at top, rgba(24, 170, 200, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+    var(--bg);
   color: var(--text);
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -63,7 +66,19 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-size: 24px 24px;
+  opacity: 0.8;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 10, 20, 0) 60%, rgba(4, 10, 20, 0.28) 100%),
+    radial-gradient(circle at 50% -10%, rgba(24, 170, 200, 0.08), transparent 42%);
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -171,11 +186,11 @@ h1, h2, h3, h4, h5, h6,
 .leaflet-tooltip {
   background: var(--card);
   color: var(--text);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+  border-radius: 8px;
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 14px 32px rgba(3, 10, 24, 0.26);
 }
 .leaflet-tooltip-top::before {
   border-top-color: var(--accent);

@@ -31,7 +31,7 @@ export default function DemoScenarios({ onLoad }) {
       </button>
 
       {open && (
-        <div className="absolute left-1/2 z-[1200] mt-2 w-80 -translate-x-1/2 overflow-hidden rounded-lg border border-accent/40 bg-panel shadow-glow-lg">
+        <div className="absolute left-1/2 z-[1200] mt-2 w-80 -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-panel shadow-glow-lg">
           {SCENARIOS.map((s, i) => (
             <button
               key={s.id}

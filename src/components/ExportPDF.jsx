@@ -197,7 +197,7 @@ export default function ExportPDF({ result, meta }) {
       className={`flex items-center gap-2 rounded-md px-4 py-1.5 font-head text-sm font-semibold tracking-wide transition-all duration-200 ${
         disabled
           ? 'cursor-not-allowed border border-border bg-card text-muted'
-          : 'border border-accent bg-accent/10 text-accent hover:bg-accent/20 hover:shadow-glow'
+          : 'border border-accent/25 bg-card text-accent hover:border-accent/45 hover:bg-card-hover hover:shadow-glow'
       }`}
     >
       <span>PDF</span> PDF Dışa Aktar

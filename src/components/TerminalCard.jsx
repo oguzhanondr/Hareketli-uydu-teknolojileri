@@ -21,15 +21,15 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
       style={{ animationDelay: `${index * 100}ms` }}
       className={`group flex w-full flex-col items-start rounded-lg border p-3 text-left animate-fadeInUp transition-all duration-200 ${
         selected
-          ? 'border-accent bg-card shadow-glow'
-          : 'border-border bg-card hover:border-accent/60 hover:bg-card-hover'
+          ? 'border-accent/40 bg-card shadow-glow'
+          : 'border-border bg-card hover:border-accent/40 hover:bg-card-hover hover:shadow-glow'
       }`}
     >
       <div className="flex w-full items-center justify-between">
         <span className="font-head text-base font-bold tracking-wide text-text">{terminal.name}</span>
         <span
           className={`flex h-7 w-7 items-center justify-center rounded-full font-head text-xs font-bold ${
-            selected ? 'bg-accent text-[#06121f]' : 'bg-terminal/20 text-terminal'
+            selected ? 'bg-terminal text-white shadow-sm' : 'bg-terminal/14 text-terminal'
           }`}
         >
           {terminal.label}

@@ -306,7 +306,7 @@ export default function App() {
                   <IRSScoreTable irs={selectedTerminal.irs} onOpen={setModalIRS} />
 
                   {selectedTerminal.irs[0]?.decision && (
-                    <div className="mb-3 rounded-lg border border-accent/40 bg-accent/5 px-3 py-2 text-[11px] leading-snug text-text">
+                    <div className="mb-3 rounded-lg border border-accent/20 bg-card-hover px-3 py-2 text-[11px] leading-snug text-text">
                       <span className="font-head font-semibold text-accent">Karar gerekcesi: </span>
                       {selectedTerminal.irs[0].decision}
                     </div>
@@ -348,7 +348,7 @@ export default function App() {
 function EmptyState({ markers }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-accent/40 bg-accent/5 text-2xl text-accent shadow-glow">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-accent/25 bg-card text-2xl text-accent shadow-glow">
         o
       </div>
       <h3 className="font-head text-lg font-bold tracking-wide text-text">Henüz analiz yok</h3>

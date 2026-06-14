@@ -152,7 +152,7 @@ export default function Navbar({
   return (
     <header className="relative z-[1100] flex items-center gap-4 border-b border-border bg-panel px-4 py-2.5">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md border border-accent/50 bg-accent/10 shadow-glow">
+        <div className="flex h-9 w-9 items-center justify-center rounded-md border border-accent/25 bg-card shadow-glow">
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#00d4ff" strokeWidth="1.7">
             <rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="#00d4ff" fillOpacity="0.3" />
             <path d="M9.5 9.5 L5.5 5.5 M4 7 L7 4 M4 4 L7 7" strokeLinecap="round" />
@@ -172,7 +172,7 @@ export default function Navbar({
           onClick={onOpenProjectDetails}
           className={`ml-2 rounded-md border px-3 py-1.5 font-head text-xs font-semibold tracking-wide transition-all duration-200 ${
             detailsActive
-              ? 'border-accent bg-accent/15 text-accent shadow-glow'
+              ? 'border-accent/40 bg-card text-accent shadow-glow'
               : 'border-border bg-card text-text hover:border-accent hover:text-accent'
           }`}
         >

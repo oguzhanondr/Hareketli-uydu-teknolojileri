@@ -69,6 +69,50 @@ function normalizeRing(latlngs) {
   return filtered.length >= 4 ? filtered : null
 }
 
+function segmentsCross(a1, a2, b1, b2) {
+  const d = (a2.lng - a1.lng) * (b2.lat - b1.lat) - (a2.lat - a1.lat) * (b2.lng - b1.lng)
+  if (Math.abs(d) < 1e-12) return false
+  const t = ((b1.lng - a1.lng) * (b2.lat - b1.lat) - (b1.lat - a1.lat) * (b2.lng - b1.lng)) / d
+  const u = ((b1.lng - a1.lng) * (a2.lat - a1.lat) - (b1.lat - a1.lat) * (a2.lng - a1.lng)) / d
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1
+}
+
+function selfIntersects(latlngs) {
+  for (let i = 0; i < latlngs.length - 1; i++) {
+    const a1 = { lat: latlngs[i][0], lng: latlngs[i][1] }
+    const a2 = { lat: latlngs[i + 1][0], lng: latlngs[i + 1][1] }
+    for (let j = i + 1; j < latlngs.length - 1; j++) {
+      if (Math.abs(i - j) <= 1) continue
+      if (i === 0 && j === latlngs.length - 2) continue
+      const b1 = { lat: latlngs[j][0], lng: latlngs[j][1] }
+      const b2 = { lat: latlngs[j + 1][0], lng: latlngs[j + 1][1] }
+      if (segmentsCross(a1, a2, b1, b2)) return true
+    }
+  }
+  return false
+}
+
+function hasSuspiciousEdgeJump(latlngs) {
+  const edges = []
+  for (let i = 0; i < latlngs.length - 1; i++) {
+    edges.push(
+      distanceM(
+        { lat: latlngs[i][0], lng: latlngs[i][1] },
+        { lat: latlngs[i + 1][0], lng: latlngs[i + 1][1] }
+      )
+    )
+  }
+  if (edges.length < 4) return false
+  const sorted = [...edges].sort((a, b) => a - b)
+  const median = sorted[Math.floor(sorted.length / 2)] || 0
+  const max = sorted[sorted.length - 1] || 0
+  return max > 120 || (median > 0 && max > median * 4.5)
+}
+
+function isUsableBuildingRing(latlngs) {
+  return !selfIntersects(latlngs) && !hasSuspiciousEdgeJump(latlngs)
+}
+
 function centroidOf(latlngs) {
   const open = latlngs.slice(0, -1)
   let lat = 0
@@ -125,6 +169,7 @@ export function parseBuildings(elements) {
     seen.add(el.id)
     const latlngs = normalizeRing(el.geometry.map((g) => [g.lat, g.lon]))
     if (!latlngs) continue
+    if (!isUsableBuildingRing(latlngs)) continue
     const c = centroidOf(latlngs)
     if (!inMission(c.lat, c.lng)) continue
     const { heightM, levels } = parseHeight(el.tags)

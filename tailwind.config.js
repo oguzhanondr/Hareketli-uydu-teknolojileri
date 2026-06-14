@@ -26,8 +26,10 @@ export default {
         body: ['"DM Sans"', 'sans-serif'],
       },
       boxShadow: {
-        glow: '0 0 18px rgba(0, 212, 255, 0.55), 0 0 4px rgba(0, 212, 255, 0.9)',
-        'glow-lg': '0 0 32px rgba(0, 212, 255, 0.7), 0 0 8px rgba(0, 212, 255, 0.9)',
+        glow:
+          '0 14px 34px rgba(3, 10, 24, 0.24), 0 2px 10px rgba(3, 10, 24, 0.16), 0 0 0 1px rgba(0, 168, 204, 0.14)',
+        'glow-lg':
+          '0 24px 56px rgba(3, 10, 24, 0.3), 0 10px 22px rgba(3, 10, 24, 0.18), 0 0 0 1px rgba(0, 168, 204, 0.16)',
       },
       keyframes: {
         fadeInUp: {
@@ -39,8 +41,14 @@ export default {
           '100%': { transform: 'rotate(360deg)' },
         },
         pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 14px rgba(0,212,255,0.45)' },
-          '50%': { boxShadow: '0 0 28px rgba(0,212,255,0.85)' },
+          '0%, 100%': {
+            boxShadow:
+              '0 12px 30px rgba(3,10,24,0.22), 0 0 0 1px rgba(0,168,204,0.12)',
+          },
+          '50%': {
+            boxShadow:
+              '0 18px 38px rgba(3,10,24,0.28), 0 0 0 1px rgba(0,168,204,0.18)',
+          },
         },
       },
       animation: {

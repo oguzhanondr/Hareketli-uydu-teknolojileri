@@ -247,7 +247,7 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
   const btn = (active) =>
     `px-3 py-1.5 rounded-md font-head font-semibold text-sm tracking-wide border transition-all duration-200 ${
       active
-        ? 'bg-accent text-[#06121f] border-accent shadow-glow'
+        ? 'bg-card text-accent border-accent/40 shadow-glow'
         : 'bg-card text-text border-border hover:border-accent hover:text-accent'
     }`
 
@@ -300,7 +300,7 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
           onClick={onAnalyze}
           className={`px-5 py-1.5 rounded-md font-head font-bold text-sm tracking-widest uppercase transition-all duration-200 ${
             canAnalyze && !loading
-              ? 'bg-accent text-[#06121f] shadow-glow animate-pulseGlow hover:shadow-glow-lg'
+              ? 'border border-accent/40 bg-card text-accent shadow-glow hover:bg-card-hover hover:shadow-glow-lg'
               : 'bg-card text-muted border border-border cursor-not-allowed'
           }`}
           title={canAnalyze ? 'Yerleşim analizini çalıştır' : 'En az 3 depremzede ve 1 enkaz gerekli'}

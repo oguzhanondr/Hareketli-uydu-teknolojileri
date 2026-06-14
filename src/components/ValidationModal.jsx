@@ -21,7 +21,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
       onClick={onClose}
     >
       <div
-        className="max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-xl border bg-panel shadow-glow-lg"
+        className="max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-2xl border bg-panel shadow-glow-lg"
         style={{ borderColor: `${color}66` }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -90,7 +90,7 @@ export default function ValidationModal({ validation, onClose, onReanalyze }) {
                 onClose()
                 onReanalyze()
               }}
-              className="mt-4 w-full rounded-md bg-accent px-4 py-2 font-head text-sm font-bold tracking-wide text-[#06121f] transition-all duration-200 hover:shadow-glow-lg"
+              className="mt-4 w-full rounded-md border border-accent/35 bg-card px-4 py-2 font-head text-sm font-bold tracking-wide text-accent transition-all duration-200 hover:bg-card-hover hover:shadow-glow"
             >
               Tüm Pipeline'ı Yeniden Çalıştır
             </button>

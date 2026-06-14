@@ -43,7 +43,7 @@ export default function IRSModal({ irs, onClose }) {
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-accent/40 bg-panel shadow-glow-lg"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-panel shadow-glow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-border bg-card px-6 py-5">
@@ -97,7 +97,7 @@ export default function IRSModal({ irs, onClose }) {
           )}
 
           {irs.decision && (
-            <div className="mt-4 rounded-lg border border-accent/40 bg-accent/5 px-4 py-3">
+            <div className="mt-4 rounded-lg border border-accent/20 bg-card-hover px-4 py-3">
               <div className="font-head text-xs font-semibold uppercase tracking-wide text-accent">
                 Neden seçildi
               </div>
@@ -156,7 +156,7 @@ export default function IRSModal({ irs, onClose }) {
 
           <button
             onClick={() => setShowTech((v) => !v)}
-            className="mt-5 w-full rounded-md border border-accent/50 bg-accent/10 px-4 py-2.5 font-head text-base font-semibold tracking-wide text-accent transition-all duration-200 hover:bg-accent/20"
+            className="mt-5 w-full rounded-md border border-accent/25 bg-card px-4 py-2.5 font-head text-base font-semibold tracking-wide text-accent transition-all duration-200 hover:border-accent/45 hover:bg-card-hover"
           >
             {showTech ? 'Teknik Detayları Gizle ^' : 'Teknik Detaylar v'}
           </button>
