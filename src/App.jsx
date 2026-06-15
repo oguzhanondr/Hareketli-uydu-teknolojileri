@@ -7,6 +7,7 @@ import IRSScoreTable from './components/IRSScoreTable.jsx'
 import IRSModal from './components/IRSModal.jsx'
 import ValidationModal from './components/ValidationModal.jsx'
 import LoadingOverlay from './components/LoadingOverlay.jsx'
+import ProjectDetailsPage from './components/ProjectDetailsPage.jsx'
 import { useTheme } from './hooks/useTheme.js'
 import { useMarkers } from './hooks/useMarkers.js'
 import { useAnalysis } from './hooks/useAnalysis.js'
@@ -206,7 +207,6 @@ export default function App() {
   return (
     <div className="relative flex h-full flex-col">
       <Navbar
-        onLoadScenario={handleLoadScenario}
         isDark={isDark}
         onToggleTheme={toggle}
         aiStatus={aiStatus}
@@ -217,7 +217,7 @@ export default function App() {
       />
 
       {page === 'details' ? (
-        <main className="relative z-10 min-h-0 flex-1 bg-panel" />
+        <ProjectDetailsPage geminiEnabled={!!API_KEY} />
       ) : (
       <main className="relative z-10 flex min-h-0 flex-1">
         <section className="h-full w-[60%] border-r border-border">
@@ -244,6 +244,7 @@ export default function App() {
             onValidate={handleValidate}
             validation={analysis.validation}
             onOpenValidation={() => setValidationOpen(true)}
+            onLoadScenario={handleLoadScenario}
           />
         </section>
 

@@ -1,4 +1,3 @@
-import DemoScenarios from './DemoScenarios.jsx'
 import ExportPDF from './ExportPDF.jsx'
 
 function StatusPill({ label, value, color, title }) {
@@ -138,7 +137,6 @@ function EngineStatus({ status }) {
 }
 
 export default function Navbar({
-  onLoadScenario,
   isDark,
   onToggleTheme,
   aiStatus,
@@ -180,9 +178,7 @@ export default function Navbar({
         </button>
       </div>
 
-      <div className="mx-auto">
-        <DemoScenarios onLoad={onLoadScenario} />
-      </div>
+      <div className="mx-auto" />
 
       <div className="flex items-center gap-2.5">
         <EngineStatus status={aiStatus} />

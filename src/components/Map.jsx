@@ -21,6 +21,7 @@ import {
 import { destinationPoint, distanceM, firstBlockingBuilding } from '../lib/geometry.js'
 import { getIntactBuildings } from '../lib/algorithm.js'
 import { rankColor, nlosColor } from '../lib/ui.js'
+import DemoScenarios from './DemoScenarios.jsx'
 
 const MIN_BUILDING_ZOOM = 15
 
@@ -243,16 +244,27 @@ function buildIrsGroupLines(irsUnits = [], debris = []) {
   return lines
 }
 
-function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loading, buildingStatus }) {
+function Toolbar({
+  mode,
+  toggleMode,
+  onClear,
+  onAnalyze,
+  canAnalyze,
+  counts,
+  loading,
+  buildingStatus,
+  onLoadScenario,
+}) {
   const btn = (active) =>
-    `px-3 py-1.5 rounded-md font-head font-semibold text-sm tracking-wide border transition-all duration-200 ${
+    `px-2.5 py-1.25 rounded-md font-head font-semibold text-[13px] tracking-[0.02em] whitespace-nowrap border transition-all duration-200 ${
       active
         ? 'bg-card text-accent border-accent/40 shadow-glow'
         : 'bg-card text-text border-border hover:border-accent hover:text-accent'
     }`
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-panel border-b border-border">
+    <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 bg-panel border-b border-border">
+      <DemoScenarios onLoad={onLoadScenario} />
       <button className={btn(mode === 'survivor')} onClick={() => toggleMode('survivor')}>
         <span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full bg-survivor align-middle" />
         Depremzede Ekle
@@ -266,7 +278,7 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
         Kaldır
       </button>
       <button
-        className="px-3 py-1.5 rounded-md font-head font-semibold text-sm tracking-wide border border-border bg-card text-muted hover:text-debris hover:border-debris transition-all duration-200"
+        className="px-2.5 py-1.25 rounded-md font-head font-semibold text-[13px] tracking-[0.02em] whitespace-nowrap border border-border bg-card text-muted hover:text-debris hover:border-debris transition-all duration-200"
         onClick={onClear}
       >
         Temizle
@@ -282,8 +294,8 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
         ) : null}
       </span>
 
-      <div className="ml-auto flex items-center gap-3">
-        <div className="flex items-center gap-3 text-sm font-head">
+      <div className="ml-auto flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 text-[13px] font-head whitespace-nowrap">
           <span className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-survivor" />
             <span className="text-muted">DEPREMZEDE</span>
@@ -298,7 +310,7 @@ function Toolbar({ mode, toggleMode, onClear, onAnalyze, canAnalyze, counts, loa
         <button
           disabled={!canAnalyze || loading}
           onClick={onAnalyze}
-          className={`px-5 py-1.5 rounded-md font-head font-bold text-sm tracking-widest uppercase transition-all duration-200 ${
+          className={`px-4 py-1.25 rounded-md font-head font-bold text-[13px] tracking-[0.12em] uppercase whitespace-nowrap transition-all duration-200 ${
             canAnalyze && !loading
               ? 'border border-accent/40 bg-card text-accent shadow-glow hover:bg-card-hover hover:shadow-glow-lg'
               : 'bg-card text-muted border border-border cursor-not-allowed'
@@ -335,6 +347,7 @@ export default function MapPanel({
   onValidate,
   validation,
   onOpenValidation,
+  onLoadScenario,
 }) {
   const [buildingStatus, setBuildingStatus] = useState({ loading: false, tooFar: false, error: null })
   const terminals = result?.terminals ?? []
@@ -386,6 +399,7 @@ export default function MapPanel({
         counts={counts}
         loading={loading}
         buildingStatus={buildingStatus}
+        onLoadScenario={onLoadScenario}
       />
       <div className="relative flex-1">
         <MapContainer
