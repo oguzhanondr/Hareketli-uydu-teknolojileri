@@ -70,10 +70,8 @@ export function useAnalysis() {
       setLoading(false)
       setStatusMessage('')
 
-      const [rerank, explanation] = await Promise.all([
-        rerankTerminals(payload, apiKey),
-        generateExplanations(payload, apiKey),
-      ])
+      const rerank = await rerankTerminals(payload, apiKey)
+      const explanation = await generateExplanations(payload, apiKey)
       if (requestRef.current !== requestId) return
 
       setResult((current) => {
