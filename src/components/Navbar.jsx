@@ -25,6 +25,7 @@ function EngineStatus({ status }) {
         : status.hasKey
           ? 'Yerel'
           : 'Kapalı'
+
   const explanationColor =
     status.explanation === 'gemini'
       ? '#22c55e'
@@ -33,6 +34,7 @@ function EngineStatus({ status }) {
         : status.hasKey
           ? '#eab308'
           : '#8aa0c6'
+
   const rerankValue =
     status.rerank === 'gemini'
       ? 'Gemini'
@@ -41,6 +43,7 @@ function EngineStatus({ status }) {
         : status.hasKey
           ? 'Yerel'
           : 'Kapalı'
+
   const rerankColor =
     status.rerank === 'gemini'
       ? '#22c55e'
@@ -49,6 +52,7 @@ function EngineStatus({ status }) {
         : status.hasKey
           ? '#eab308'
           : '#8aa0c6'
+
   const validationValue =
     !status.hasKey
       ? 'Kapalı'
@@ -57,22 +61,23 @@ function EngineStatus({ status }) {
         : status.validation === 'done'
           ? 'Gemini'
           : status.validation === 'timeout'
-            ? 'Zaman Asimi'
-          : status.validation === 'error'
-            ? 'Hata'
-            : 'Hazır'
+            ? 'Zaman Aşımı'
+            : status.validation === 'error'
+              ? 'Hata'
+              : 'Hazır'
+
   const validationColor =
     validationValue === 'Gemini'
       ? '#22c55e'
       : validationValue === 'Çalışıyor'
         ? '#00d4ff'
-        : validationValue === 'Zaman Asimi'
+        : validationValue === 'Zaman Aşımı'
           ? '#eab308'
-        : validationValue === 'Hata'
-          ? '#ef4444'
-          : status.hasKey
-            ? '#eab308'
-            : '#8aa0c6'
+          : validationValue === 'Hata'
+            ? '#ef4444'
+            : status.hasKey
+              ? '#eab308'
+              : '#8aa0c6'
 
   return (
     <div className="flex items-center gap-2">
@@ -91,11 +96,11 @@ function EngineStatus({ status }) {
             ? 'Açıklamalar Gemini ile üretildi.'
             : status.explanation === 'pending'
               ? 'Yerel sonuç gösterildi; Gemini arka planda açıklama üretiyor.'
-            : status.error
-              ? `Gemini kullanılamadı: ${status.error}`
-              : status.hasKey
-                ? 'Gemini denendi; şu an ekranda yerel açıklama gösteriliyor.'
-                : 'Gemini kapalı, açıklamalar yerel motorla sunuluyor.'
+              : status.explanationError
+                ? `Gemini kullanılamadı: ${status.explanationError}`
+                : status.hasKey
+                  ? 'Gemini denendi; şu an ekranda yerel açıklama gösteriliyor.'
+                  : 'Gemini kapalı, açıklamalar yerel motorla sunuluyor.'
         }
       />
       <StatusPill
@@ -107,9 +112,11 @@ function EngineStatus({ status }) {
             ? 'Geçerli yerel çözümler arasındaki sunum sırası Gemini ile iyileştirildi.'
             : status.rerank === 'pending'
               ? 'Yerel sıralama gösterildi; Gemini arka planda yeniden sıralamayı deniyor.'
-            : status.hasKey
-              ? 'Gemini devrede; ancak yalnızca geçerli yerel çözümleri yeniden sıralar.'
-              : 'Gemini kapalı olduğu için yerel sıralama korunuyor.'
+              : status.rerankError
+                ? `Gemini rerank kullanılamadı: ${status.rerankError}`
+                : status.hasKey
+                  ? 'Gemini devrede; ancak yalnızca geçerli yerel çözümleri yeniden sıralar.'
+                  : 'Gemini kapalı olduğu için yerel sıralama korunuyor.'
         }
       />
       <StatusPill
@@ -125,11 +132,11 @@ function EngineStatus({ status }) {
                 ? 'Görsel doğrulama tamamlandı.'
                 : status.validation === 'timeout'
                   ? 'Gemini görsel doğrulama geç yanıt verdi; yerel geometri sonucu korunuyor.'
-                : status.validation === 'error'
-                  ? status.error
-                    ? `Gemini kullanılamadı: ${status.error}`
-                    : 'Görsel doğrulama tamamlanamadı.'
-                  : 'Analizden sonra görsel doğrulama çalışmaya hazır.'
+                  : status.validation === 'error'
+                    ? status.validationError
+                      ? `Gemini kullanılamadı: ${status.validationError}`
+                      : 'Görsel doğrulama tamamlanamadı.'
+                    : 'Analizden sonra görsel doğrulama çalışmaya hazır.'
         }
       />
     </div>
@@ -184,7 +191,7 @@ export default function Navbar({
         <EngineStatus status={aiStatus} />
         <button
           onClick={onToggleTheme}
-          title="Temayi degistir"
+          title="Temayı değiştir"
           className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-base transition-all duration-200 hover:border-accent hover:text-accent"
         >
           {isDark ? 'Light' : 'Dark'}

@@ -106,55 +106,101 @@ function parseJsonLoose(text) {
 const pct = (x) => Math.round((x ?? 0) * 100)
 
 const SYSTEM_PROMPT =
-  'Sen, ARES-Reflect sisteminde yalnızca YEREL motorun hesapladığı ve fiziksel olarak geçerli bulunan IRS konumlarını açıklayan bir afet haberleşmesi uzmanısın. ' +
-  'Konum seçimi sana ait değil; sadece verilen sayısal verileri daha açık Türkçe ile yorumla. ' +
-  'Her IRS için geçerli bir JSON dizisi dön. Her öğe: id, name, summary, technical, comparison alanlarını içersin. ' +
-  'Summary 3-5 cümlelik açık ve sade Türkçe olsun. Teknik açıklama sayısal değerleri kullansın ama günlük dilde ne anlama geldiklerini de söylesin. ' +
-  'Sınırda kalan önerilerde bunu açıkça belirt. Asla yeni sayı uydurma.'
+  'Sen, ARES-Reflect sisteminde yalnizca YEREL motorun hesapladigi ve fiziksel olarak gecerli bulunan IRS konumlarini aciklayan bir afet haberlesmesi uzmansin. ' +
+  'Konum secimi sana ait degil; sadece verilen sayisal verileri daha acik Turkce ile yorumla. ' +
+  'Her IRS icin gecerli bir JSON dizisi don. Her oge: id, name, summary, technical, comparison alanlarini icersin. ' +
+  'Summary 3-5 cumlelik acik ve sade Turkce olsun. Teknik aciklama sayisal degerleri kullansin ama gunluk dilde ne anlama geldiklerini de soylesin. ' +
+  'Sinirda kalan onerilerde bunu acikca belirt. Asla yeni sayi uydurma.'
 
 const RERANK_PROMPT =
-  'Sen, zaten fiziksel olarak GEÇERLİ olduğu yerel motor tarafından kanıtlanmış terminal çözümlerini yalnızca operasyonel öncelik için sıralıyorsun. ' +
-  'Yeni koordinat üretme, geçersiz çözüm önermeye kalkma ve fiziksel kuralları değiştirme. ' +
+  'Sen, zaten fiziksel olarak GECERLI oldugu yerel motor tarafindan kanitlanmis terminal cozumlerini yalnizca operasyonel oncelik icin siraliyorsun. ' +
+  'Yeni koordinat uretme, gecersiz cozum onermeye kalkma ve fiziksel kurallari degistirme. ' +
   'JSON nesnesi don: { "terminal_order": ["T-A", ...], "reasons": [{ "id": "T-A", "reason": "..." }] }. ' +
-  'Gerekçeyi kısa ve Türkçe yaz.'
+  'Gerekceyi kisa ve Turkce yaz.'
+
+function qualityBandText(score) {
+  const value = pct(score)
+  if (value >= 85) return 'guclu kalite bandinda'
+  if (value >= 70) return 'uygun kalite bandinda'
+  if (value >= 55) return 'sinirda ama kullanilabilir kalite bandinda'
+  return 'dusuk kalite bandinda'
+}
+
+function coverageSentence(u) {
+  if (u.survivors_covered_clear >= 3) {
+    return `Acik hatla ${u.survivors_covered_clear} depremzedeye dogrudan ulasiyor ve toplam gorunen kapsama ${u.survivors_covered} kisiye cikiyor.`
+  }
+  if (u.survivors_covered_clear === 2) {
+    return `Iki depremzedeye acik hat kurabiliyor; toplam gorunen kapsama ${u.survivors_covered} kisi seviyesinde kaliyor.`
+  }
+  if (u.survivors_covered_clear === 1) {
+    return 'Yalnizca 1 depremzedeye net acik hat veriyor; bu nedenle kapsama katkisi daha sinirli kaliyor.'
+  }
+  return 'Acik hatli bir depremzede uretmedigi icin bu konum daha cok yedek veya dengeleyici bir aday gibi davraniyor.'
+}
+
+function reflectionSentence(u) {
+  const gain = `${u.link_gain_db >= 0 ? '+' : ''}${u.link_gain_db} dB`
+  if (u.link_gain_db >= 0) {
+    return `Link kazanci ${gain} oldugu icin sinyal butcesi tarafinda daha rahat bir tablo ciziyor.`
+  }
+  if (u.link_gain_db >= -6) {
+    return `Link kazanci ${gain} seviyesinde; yani konum calisabilir olsa da cok guclu bir marj birakmiyor.`
+  }
+  return `Link kazanci ${gain} seviyesine dustugu icin konum fiziksel olarak gecerli olsa da saha dayanikliligi acisindan daha hassas kaliyor.`
+}
+
+function blockerSentence(u) {
+  const blocker = u.blocker_building_name || u.term_blocker_name || u.vic_blocker_name
+  return blocker ? ` Kritik kisimda ${blocker} binasi etkili oldugu icin bu nokta dikkat etiketiyle yorumlanmali.` : ''
+}
+
+function decisionSentence(u) {
+  const score = u.quality_score ?? u.composite_score
+  if (u.validity_status === 'borderline') {
+    return 'Yerel motor bu konumu gecerli kabul etti; ancak kalite sinirda kaldigi icin daha guclu adaylarin gerisinde tutuyor.'
+  }
+  if (score >= 0.8 && u.survivors_covered_clear >= 2) {
+    return 'Acik hat, kalite ve kapsama dengesi birlikte guclu oldugu icin terminal tarafinda oncelikli adaylardan biri haline geliyor.'
+  }
+  if (u.survivors_covered_clear >= 2) {
+    return 'Kapsama katkisi anlamli oldugu icin toplam set kalitesine destek veren dengeli bir aday olarak one cikiyor.'
+  }
+  return 'Bu nokta zirve kalite sunmuyor; yine de terminal setinin dagilim ve erisim dengesine katkisi oldugu icin listede tutuluyor.'
+}
 
 export function buildFallback(payload) {
   const byTerminal = {}
   for (const u of payload.irs_list) (byTerminal[u.terminal_id] ||= []).push(u)
 
   return payload.irs_list.map((u) => {
-    const peers = byTerminal[u.terminal_id]
     const rankText =
-      u.rank_in_terminal === 1 ? 'en güçlü' : u.rank_in_terminal === 2 ? 'ikinci' : 'üçüncü'
-    const blockerText =
-      u.blocker_building_name || u.term_blocker_name || u.vic_blocker_name
-        ? ` Aradaki kritik engel ${u.term_blocker_name || u.vic_blocker_name} olarak goruluyor.`
-        : ''
-    const constrainedText = u.validity_status === 'borderline'
-      ? ' Bu yerleşim fiziksel olarak geçerli; ancak kalite bandı sınırda kaldığı için dikkatli yorumlanmalıdır.'
-      : ' Bu yerleşim açık hat ve kalite puanı bakımından güçlü bir seçim.'
+      u.rank_in_terminal === 1 ? 'en guclu' : u.rank_in_terminal === 2 ? 'ikinci' : 'ucuncu'
     const terminalCount = byTerminal[u.terminal_id]?.length || 0
 
     const summary =
-      `${u.name}, ${u.terminal_name} için önerilen ${rankText} IRS konumudur ve kalite puanı %${pct(
+      `${u.name}, ${u.terminal_name} icin onerilen ${rankText} IRS konumudur ve kalite puani %${pct(
         u.quality_score ?? u.composite_score
-      )} seviyesindedir. ` +
-      `Terminale ${u.distance_to_terminal} m mesafede kalırken açık hatla ${u.survivors_covered_clear} depremzedeye ulaşabiliyor; toplam görülen kapsama ${u.survivors_covered}. ` +
-      `Yansıma verimi %${pct(u.reflection_efficiency)}, tahmini link kazancı ${u.link_gain_db >= 0 ? '+' : ''}${u.link_gain_db} dB ve toplam yol ${u.total_path_m} m olarak hesaplandı.` +
-      constrainedText +
-      blockerText
+      )} ile ${qualityBandText(u.quality_score ?? u.composite_score)} gorunuyor. ` +
+      `${coverageSentence(u)} ` +
+      `Terminale ${u.distance_to_terminal} m uzaklikta kalirken yansima verimi %${pct(
+        u.reflection_efficiency
+      )} ve toplam yol ${u.total_path_m} m olarak hesaplandi. ` +
+      `${reflectionSentence(u)} ` +
+      `${decisionSentence(u)}` +
+      blockerSentence(u)
 
     const technical =
-      `İki bacaklı kanal ayrı ayrı hesaplandı: terminal-IRS görüşü ${u.term_los}, IRS-hedef görüşü ${u.vic_los}. ` +
-      `Bu, her iki hatta ayakta bina olup olmadığının doğrudan kontrol edildiği anlamına gelir; enkaz binaları blokaj sayılmaz. ` +
-      `Panel ${u.mount_type === 'cephe' ? `${u.facade} cephede` : 'serbest direkte'} yaklaşık ${u.mount_height_m} m seviyesinde konumlanır; cephe hizası ${u.facade_alignment} değerindedir. ` +
-      `Gelme ve çıkış açıları ${u.theta_in} / ${u.theta_out} derece, bu da panelin sinyali ne kadar verimli büktüğünü gösterir. ` +
-      `Fresnel açıklığı ${u.fresnel_clear}, link kazancı ${u.link_gain_db >= 0 ? '+' : ''}${u.link_gain_db} dB ve kalite puanı %${pct(
+      `Iki bacakli kanal ayri ayri hesaplandi: terminal-IRS gorusu ${u.term_los}, IRS-hedef gorusu ${u.vic_los}. ` +
+      'Bu, her iki hatta ayakta bina olup olmadiginin dogrudan kontrol edildigi anlamina gelir; enkaz binalari blokaj sayilmaz. ' +
+      `Panel ${u.mount_type === 'cephe' ? `${u.facade} cephede` : 'serbest direkte'} yaklasik ${u.mount_height_m} m seviyesinde konumlanir; cephe hizasi ${u.facade_alignment} degerindedir. ` +
+      `Gelme ve cikis acilari ${u.theta_in} / ${u.theta_out} derece, bu da panelin sinyali ne kadar verimli bukuldugunu gosterir. ` +
+      `Fresnel acikligi ${u.fresnel_clear}, link kazanci ${u.link_gain_db >= 0 ? '+' : ''}${u.link_gain_db} dB ve kalite puani %${pct(
         u.quality_score ?? u.composite_score
       )} birlikte yorumlanir.`
 
     const comparison =
-      `${u.terminal_name} içindeki ${terminalCount} geçerli IRS arasında ${u.name}, kalite puanı %${pct(
+      `${u.terminal_name} icindeki ${terminalCount} gecerli IRS arasinda ${u.name}, kalite puani %${pct(
         u.quality_score ?? u.composite_score
       )} ile ${rankText} siradadir.`
 
@@ -225,10 +271,7 @@ export async function rerankTerminals(payload, apiKey) {
     const proposed = Array.isArray(parsed.terminal_order)
       ? parsed.terminal_order.map(String).filter((id) => validIds.has(id))
       : []
-    const ordered = [
-      ...proposed,
-      ...fallbackOrder.filter((id) => !proposed.includes(id)),
-    ]
+    const ordered = [...proposed, ...fallbackOrder.filter((id) => !proposed.includes(id))]
 
     const reasons = Object.fromEntries(
       Array.isArray(parsed.reasons)
@@ -260,7 +303,7 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       valid: null,
       issues: [],
       confidence: 0,
-      recommendation: 'Görsel doğrulama atlandı (Gemini kapalı).',
+      recommendation: 'Gorsel dogrulama atlandi (Gemini kapali).',
       source: 'skipped',
     }
   }
@@ -269,7 +312,7 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       valid: null,
       issues: [],
       confidence: 0,
-      recommendation: 'Harita öğesi bulunamadı.',
+      recommendation: 'Harita ogesi bulunamadi.',
       source: 'error',
     }
   }
@@ -291,7 +334,7 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       valid: null,
       issues: [],
       confidence: 0,
-      recommendation: 'Harita görüntüsü alınamadı: ' + String(e?.message || e),
+      recommendation: 'Harita goruntusu alinamadi: ' + String(e?.message || e),
       source: 'error',
     }
   }
@@ -322,7 +365,7 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
         issues: [],
         confidence: 0,
         recommendation:
-          'Gemini görsel doğrulama zaman aşımına düştü. Yerleşim sonucu yerel geometri motoru tarafından korunuyor.',
+          'Gemini gorsel dogrulama zaman asimina dustu. Yerlesim sonucu yerel geometri motoru tarafindan korunuyor.',
         source: 'timeout',
       }
     }
@@ -330,7 +373,7 @@ export async function validatePlacementVisually(mapElement, placementData, apiKe
       valid: null,
       issues: [],
       confidence: 0,
-      recommendation: 'Görsel doğrulama yapılamadı: ' + String(e?.message || e),
+      recommendation: 'Gorsel dogrulama yapilamadi: ' + String(e?.message || e),
       source: 'error',
     }
   }

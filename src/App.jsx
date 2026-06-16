@@ -202,6 +202,9 @@ export default function App() {
     rerank: analysis.rerankSource,
     validation: analysis.validation.status,
     error: analysis.error,
+    explanationError: analysis.errors?.explanation || null,
+    rerankError: analysis.errors?.rerank || null,
+    validationError: analysis.errors?.validation || null,
   }
 
   return (

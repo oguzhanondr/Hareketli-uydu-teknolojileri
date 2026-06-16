@@ -16,7 +16,12 @@ export function useAnalysis() {
   const [source, setSource] = useState('local')
   const [rerankSource, setRerankSource] = useState('local')
   const [selectionReasoning, setSelectionReasoning] = useState(null)
-  const [error, setError] = useState(null)
+  const [errors, setErrors] = useState({
+    analyze: null,
+    explanation: null,
+    rerank: null,
+    validation: null,
+  })
   const [selectedTerminalId, setSelectedTerminalId] = useState(null)
   const [validation, setValidation] = useState({ status: 'idle', result: null })
   const requestRef = useRef(0)
@@ -24,7 +29,12 @@ export function useAnalysis() {
   const analyze = useCallback(async (survivors, debris, buildings, apiKey) => {
     const requestId = ++requestRef.current
     setLoading(true)
-    setError(null)
+    setErrors({
+      analyze: null,
+      explanation: null,
+      rerank: null,
+      validation: null,
+    })
     setValidation({ status: 'idle', result: null })
     setStatusMessage('Yerel analiz yapılıyor...')
 
@@ -88,10 +98,16 @@ export function useAnalysis() {
       setSelectedTerminalId((current) => rerank.terminalOrder?.[0] || current)
       setSource(explanation.source)
       setRerankSource(rerank.source)
-      if (explanation.error) setError(explanation.error)
-      else if (rerank.error) setError(rerank.error)
+      setErrors((current) => ({
+        ...current,
+        explanation: explanation.error || null,
+        rerank: rerank.error || null,
+      }))
     } catch (err) {
-      setError(String(err?.message || err))
+      setErrors((current) => ({
+        ...current,
+        analyze: String(err?.message || err),
+      }))
       setResult(null)
       setLoading(false)
       setStatusMessage('')
@@ -100,6 +116,7 @@ export function useAnalysis() {
 
   const runValidation = useCallback(async (mapElement, apiKey, placementData) => {
     setValidation({ status: 'running', result: null })
+    setErrors((current) => ({ ...current, validation: null }))
     const res = await validatePlacementVisually(mapElement, placementData, apiKey)
     const status =
       res.source === 'gemini'
@@ -110,6 +127,14 @@ export function useAnalysis() {
             ? 'skipped'
             : 'error'
     setValidation({ status, result: res })
+    if (status === 'timeout') {
+      setErrors((current) => ({ ...current, validation: 'timeout' }))
+    } else if (status === 'error') {
+      setErrors((current) => ({
+        ...current,
+        validation: String(res?.recommendation || 'dogrulama hatasi'),
+      }))
+    }
   }, [])
 
   const reset = useCallback(() => {
@@ -118,7 +143,12 @@ export function useAnalysis() {
     setSource('local')
     setRerankSource('local')
     setSelectionReasoning(null)
-    setError(null)
+    setErrors({
+      analyze: null,
+      explanation: null,
+      rerank: null,
+      validation: null,
+    })
     setSelectedTerminalId(null)
     setValidation({ status: 'idle', result: null })
   }, [])
@@ -131,7 +161,8 @@ export function useAnalysis() {
     rerankSource,
     placementSource: 'local',
     selectionReasoning,
-    error,
+    error: errors.analyze || errors.explanation || errors.rerank || errors.validation,
+    errors,
     selectedTerminalId,
     setSelectedTerminalId,
     validation,
