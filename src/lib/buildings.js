@@ -2,7 +2,7 @@
 // buildings.js - OpenStreetMap building footprints (Overpass)
 // ============================================================
 import { distanceM } from './geometry.js'
-import { FALLBACK_BUILDINGS } from '../data/fallbackBuildings.js'
+import { LOCAL_OSM_BUILDINGS } from '../data/localOsmBuildings.js'
 
 export const ELBISTAN_CENTER = [38.20598, 37.1961]
 export const DEFAULT_ZOOM = 17
@@ -32,19 +32,39 @@ const ENDPOINTS = [
   'https://overpass.openstreetmap.fr/api/interpreter',
 ]
 
-const cache = new Map()
+const OVERPASS_REQUEST_TIMEOUT_MS = 6000
+const OVERPASS_QUERY_TIMEOUT_SEC = 8
+const overpassCache = new Map()
+
+async function fetchWithTimeout(url, options, timeoutMs = OVERPASS_REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController()
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { ...options, signal: controller.signal })
+  } finally {
+    globalThis.clearTimeout(timeout)
+  }
+}
+
+function failedFetch(err) {
+  return {
+    ok: false,
+    status: err?.name === 'AbortError' ? 'timeout' : 'network',
+    _error: err,
+  }
+}
 
 async function fetchOverpass(url, query) {
-  const post = await fetch(url, {
+  const post = await fetchWithTimeout(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'data=' + encodeURIComponent(query),
-  }).catch((err) => ({ ok: false, status: 'network', _error: err }))
+  }).catch(failedFetch)
 
   if (post.ok) return post
 
   const getUrl = `${url}?data=${encodeURIComponent(query)}`
-  const get = await fetch(getUrl).catch((err) => ({ ok: false, status: 'network', _error: err }))
+  const get = await fetchWithTimeout(getUrl).catch(failedFetch)
   if (get.ok) return get
 
   const status = get.status || post.status || 'network'
@@ -183,6 +203,7 @@ export function parseBuildings(elements) {
       name: el.tags?.name || null,
       heightM,
       levels,
+      source: 'osm',
     })
   }
   return out
@@ -206,8 +227,8 @@ function boundsOverlap(a, b) {
   )
 }
 
-function fallbackBuildingsFor(bounds) {
-  return FALLBACK_BUILDINGS.filter((building) => {
+function localBuildingsFor(bounds) {
+  return LOCAL_OSM_BUILDINGS.filter((building) => {
     const centerInside =
       building.lat >= bounds.south &&
       building.lat <= bounds.north &&
@@ -217,14 +238,21 @@ function fallbackBuildingsFor(bounds) {
   })
 }
 
-export async function fetchBuildings(viewport) {
+export function getStaticBuildings(viewport) {
+  const b = clampToMission(viewport)
+  if (!b) return []
+  return localBuildingsFor(b)
+}
+
+export async function fetchBuildings(viewport, options = {}) {
+  const { useStaticFallback = true } = options
   const b = clampToMission(viewport)
   if (!b) return []
 
   const key = [b.south, b.west, b.north, b.east].map((v) => v.toFixed(3)).join(',')
-  if (cache.has(key)) return cache.get(key)
+  if (overpassCache.has(key)) return overpassCache.get(key)
 
-  const query = `[out:json][timeout:25];(way["building"](${b.south},${b.west},${b.north},${b.east}););out geom;`
+  const query = `[out:json][timeout:${OVERPASS_QUERY_TIMEOUT_SEC}];(way["building"](${b.south},${b.west},${b.north},${b.east}););out geom;`
   let lastErr
   for (const url of ENDPOINTS) {
     try {
@@ -233,7 +261,7 @@ export async function fetchBuildings(viewport) {
       const json = await res.json()
       const buildings = parseBuildings(json.elements || [])
       if (buildings.length > 0) {
-        cache.set(key, buildings)
+        overpassCache.set(key, buildings)
         return buildings
       }
     } catch (e) {
@@ -241,9 +269,8 @@ export async function fetchBuildings(viewport) {
     }
   }
 
-  const fallback = fallbackBuildingsFor(b)
+  const fallback = useStaticFallback ? localBuildingsFor(b) : []
   if (fallback.length > 0) {
-    cache.set(key, fallback)
     return fallback
   }
 

@@ -16,9 +16,13 @@ import {
   DEFAULT_ZOOM,
   MAX_ZOOM,
   MISSION_BOUNDS,
-  fetchBuildings,
+  getStaticBuildings,
 } from '../lib/buildings.js'
-import { destinationPoint, distanceM, firstBlockingBuilding } from '../lib/geometry.js'
+import {
+  destinationPoint,
+  distanceM,
+  firstBlockingBuildingAtHeights,
+} from '../lib/geometry.js'
 import { getIntactBuildings } from '../lib/algorithm.js'
 import { rankColor, nlosColor } from '../lib/ui.js'
 import DemoScenarios from './DemoScenarios.jsx'
@@ -78,24 +82,24 @@ function BuildingLoader({ onLoaded, onStatus }) {
   const map = useMap()
   const timer = useRef(null)
 
-  const run = useCallback(async () => {
+  const run = useCallback(() => {
     if (map.getZoom() < MIN_BUILDING_ZOOM) {
       onStatus({ loading: false, tooFar: true, error: null })
       return
     }
     const b = map.getBounds()
-    onStatus({ loading: true, tooFar: false, error: null })
-    try {
-      const list = await fetchBuildings({
-        south: b.getSouth(),
-        west: b.getWest(),
-        north: b.getNorth(),
-        east: b.getEast(),
-      })
-      onLoaded(list)
+    const viewport = {
+      south: b.getSouth(),
+      west: b.getWest(),
+      north: b.getNorth(),
+      east: b.getEast(),
+    }
+    const staticList = getStaticBuildings(viewport)
+    if (staticList.length > 0) {
+      onLoaded(staticList)
       onStatus({ loading: false, tooFar: false, error: null })
-    } catch (e) {
-      onStatus({ loading: false, tooFar: false, error: String(e?.message || e) })
+    } else {
+      onStatus({ loading: false, tooFar: false, error: 'Yerel bina verisi bulunamadi' })
     }
   }, [map, onLoaded, onStatus])
 
@@ -206,13 +210,26 @@ function nearestDebrisGroupKey(point, debris = []) {
   return best.dist <= groupRadius ? best.debris.id || 'enkaz' : 'saha'
 }
 
-function buildIrsGroupLines(irsUnits = [], debris = []) {
+function buildIrsGroupLines(irsUnits = [], debris = [], intactObstacles = []) {
   const debrisById = new Map(debris.map((d) => [d.id, d]))
   const lines = []
 
   for (const u of irsUnits) {
     const groups = new Map()
     for (const survivor of u.coveredSurvivors || []) {
+      if (survivor.nlos !== 'CLEAR') continue
+      if (
+        firstBlockingBuildingAtHeights(
+          u,
+          survivor,
+          u.mount_height_m || 6,
+          1.5,
+          intactObstacles,
+          { excludedIds: [u.host_building_id].filter(Boolean) }
+        )
+      ) {
+        continue
+      }
       const key = nearestDebrisGroupKey(survivor, debris)
       const group = groups.get(key) || { key, survivors: [] }
       group.survivors.push(survivor)
@@ -222,20 +239,22 @@ function buildIrsGroupLines(irsUnits = [], debris = []) {
     for (const group of groups.values()) {
       const survivors = group.survivors
       if (!survivors.length) continue
-      const lat = survivors.reduce((sum, s) => sum + s.lat, 0) / survivors.length
-      const lng = survivors.reduce((sum, s) => sum + s.lng, 0) / survivors.length
-      const clearCount = survivors.filter((s) => s.nlos === 'CLEAR').length
-      const status =
-        clearCount === survivors.length ? 'CLEAR' : clearCount > 0 ? 'PARTIAL_NLoS' : 'FULL_NLoS'
+      const center = {
+        lat: survivors.reduce((sum, s) => sum + s.lat, 0) / survivors.length,
+        lng: survivors.reduce((sum, s) => sum + s.lng, 0) / survivors.length,
+      }
+      const target = survivors
+        .slice()
+        .sort((a, b) => distanceM(a, center) - distanceM(b, center))[0]
       const debrisName = debrisById.get(group.key)?.name || (group.key === 'saha' ? 'Saha geneli' : 'Enkaz kümesi')
 
       lines.push({
         id: `${u.id}-${group.key}`,
         irs: u,
-        target: { lat, lng },
+        target,
         count: survivors.length,
-        clearCount,
-        status,
+        clearCount: survivors.length,
+        status: 'CLEAR',
         debrisName,
       })
     }
@@ -365,7 +384,20 @@ export default function MapPanel({
     const members = clusters[t.clusterIndex]?.members ?? []
     const lines = []
     for (const s of members) {
-      if (!firstBlockingBuilding(t, s, intactObstacles)) {
+      if (
+        !firstBlockingBuildingAtHeights(
+          t,
+          s,
+          t.mount?.mount_height_m || t.mount_height_m || 8,
+          1.5,
+          intactObstacles,
+          {
+            excludedIds: [
+              t.host_building_id || t.mount?.host_building_id,
+            ].filter(Boolean),
+          }
+        )
+      ) {
         lines.push([[t.lat, t.lng], [s.lat, s.lng]])
       }
     }
@@ -379,8 +411,8 @@ export default function MapPanel({
   }, [selectedT])
 
   const irsGroupLines = useMemo(
-    () => buildIrsGroupLines(selectedT?.irs || [], debris),
-    [selectedT, debris]
+    () => buildIrsGroupLines(selectedT?.irs || [], debris, intactObstacles),
+    [selectedT, debris, intactObstacles]
   )
 
   const missionRect = [
@@ -513,7 +545,20 @@ export default function MapPanel({
           {selectedT && (
             <>
               {selectedT.irs.map((u) => {
-                const status = u.term_los_status || 'CLEAR'
+                const liveBlocker = firstBlockingBuildingAtHeights(
+                  selectedT,
+                  u,
+                  selectedT.mount?.mount_height_m || selectedT.mount_height_m || 8,
+                  u.mount_height_m || 6,
+                  intactObstacles,
+                  {
+                    excludedIds: [
+                      selectedT.host_building_id || selectedT.mount?.host_building_id,
+                      u.host_building_id,
+                    ].filter(Boolean),
+                  }
+                )
+                const status = liveBlocker ? 'FULL_NLoS' : u.term_los_status || 'CLEAR'
                 const clear = status === 'CLEAR'
                 return (
                   <Polyline

@@ -1,17 +1,21 @@
 import { useState } from 'react'
 
-function mountLabel(mount) {
+function mountLabel(mount, site) {
   if (!mount) return null
-  if (mount.type === 'acik alan') return `Açık alan - serbest direk - ~${mount.mount_height_m} m`
+  if (mount.type === 'acik alan') {
+    return site?.valid
+      ? `Aynı enkaz bölgesinde açık alan - ~${mount.mount_height_m} m`
+      : `Açık alan - serbest direk - ~${mount.mount_height_m} m`
+  }
   const host = mount.host_building_name || 'Bina'
-  if (mount.type === 'cati') return `${host} - çatı - ~${mount.mount_height_m} m`
+  if (mount.type === 'cati') return `${host} - sağlam bina çatısı - ~${mount.mount_height_m} m`
   return `${host} - ${mount.facade} cephe - ~${mount.mount_height_m} m`
 }
 
 export default function TerminalCard({ terminal, selected, onSelect, index }) {
   const [expanded, setExpanded] = useState(false)
   const mount = terminal.mount
-  const label = mountLabel(mount)
+  const label = mountLabel(mount, terminal.siteEvaluation)
   const showIrs = mount && mount.type !== 'acik alan' && mount.irs_total > 0
   const borderlineCount = terminal.irs?.filter((u) => u.validity_status === 'borderline').length ?? 0
   const description = terminal.description || ''
@@ -23,9 +27,18 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
     setExpanded((v) => !v)
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    onSelect(terminal.id)
+  }
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(terminal.id)}
+      onKeyDown={handleKeyDown}
       style={{ animationDelay: `${index * 100}ms` }}
       className={`group flex w-full flex-col items-start rounded-lg border p-3 text-left animate-fadeInUp transition-all duration-200 ${
         selected
@@ -109,7 +122,7 @@ export default function TerminalCard({ terminal, selected, onSelect, index }) {
           </div>
         )}
       </div>
-    </button>
+    </div>
   )
 }
 

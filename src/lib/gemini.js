@@ -113,7 +113,7 @@ const EXPLANATION_PROMPT =
   'Türkçe karakterleri düzgün kullan.'
 
 const RERANK_PROMPT =
-  'Sen, zaten fiziksel olarak geçerli olduğu yerel motor tarafından kanıtlanmış terminal çözümlerini yalnızca operasyonel öncelik için sıralıyorsun. ' +
+  'Sen, tam 3 IRS şartını ve yükseklik kontrollü fiziksel doğrulamayı geçmiş terminal çözümlerini yalnızca operasyonel öncelik için sıralıyorsun. ' +
   'Yeni koordinat üretme, geçersiz çözüm önerme ve fiziksel kuralları değiştirme. ' +
   'JSON nesnesi dön: { "terminal_order": ["T-A", ...], "reasons": [{ "id": "T-A", "reason": "..." }] }. ' +
   'Gerekçeyi kısa ve Türkçe yaz.'
@@ -272,18 +272,30 @@ export async function generateExplanations(payload, apiKey) {
 }
 
 export async function rerankTerminals(payload, apiKey) {
-  const fallbackOrder = payload.terminals.map((t) => t.id)
+  const eligible = payload.terminals.filter((terminal) => terminal.valid_irs_count === 3)
+  const fallbackOrder = eligible.map((t) => t.id)
+  if (eligible.length !== payload.terminals.length) {
+    return {
+      source: 'local',
+      terminalOrder: fallbackOrder,
+      reasons: {},
+      error: 'Tam 3 IRS doğrulamasını geçmeyen terminal Gemini sıralamasına alınmadı.',
+    }
+  }
   if (!apiKey) return { source: 'local', terminalOrder: fallbackOrder, reasons: {} }
 
   try {
     const compact = {
-      terminals: payload.terminals.map((t) => ({
+      terminals: eligible.map((t) => ({
         id: t.id,
         name: t.name,
         score_pct: t.score_pct,
         valid_irs_count: t.valid_irs_count,
         avg_quality: t.avg_quality,
         coverage_ratio: t.coverage_ratio,
+        related_debris_id: t.related_debris_id,
+        mount_type: t.mount_type,
+        roof_building_id: t.roof_building_id,
       })),
     }
     const { text, model } = await callGemini(apiKey, {
@@ -324,6 +336,7 @@ export async function rerankTerminals(payload, apiKey) {
 const VALIDATE_PROMPT =
   'You are reviewing a deterministic satellite terminal and IRS placement. ' +
   'Blue markers are terminals, colored teardrops are IRS units, red buildings are debris, and lines show signal paths. ' +
+  'Every terminal must have exactly three facade-mounted IRS units on three different intact buildings; terminals may be roof-mounted or use a documented local open-area fallback. ' +
   'Return JSON with valid (boolean), issues (array of Turkish strings), confidence (0-100), and recommendation (Turkish sentence).'
 
 export async function validatePlacementVisually(mapElement, placementData, apiKey) {

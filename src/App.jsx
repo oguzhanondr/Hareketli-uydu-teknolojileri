@@ -165,12 +165,16 @@ export default function App() {
   )
 
   const pendingAnalyze = useRef(false)
+  const appliedUrlDemo = useRef(null)
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
     const demo = p.get('demo')
     if (!demo) return
     const sc = SCENARIOS.find((s) => s.id === demo)
     if (!sc) return
+    const key = `${demo}:${p.get('analyze') || ''}`
+    if (appliedUrlDemo.current === key) return
+    appliedUrlDemo.current = key
     handleLoadScenario(sc)
     if (p.get('analyze') === '1') pendingAnalyze.current = true
   }, [handleLoadScenario])

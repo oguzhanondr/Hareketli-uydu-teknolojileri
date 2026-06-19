@@ -64,6 +64,14 @@ function segmentsCross(p1, p2, p3, p4) {
   return t >= 0 && t <= 1 && u >= 0 && u <= 1
 }
 
+function segmentIntersectionParam(p1, p2, p3, p4) {
+  const d = (p2.x - p1.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p4.x - p3.x)
+  if (Math.abs(d) < 1e-12) return null
+  const t = ((p3.x - p1.x) * (p4.y - p3.y) - (p3.y - p1.y) * (p4.x - p3.x)) / d
+  const u = ((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) / d
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? t : null
+}
+
 function segmentBounds(a, b) {
   return {
     south: Math.min(a.lat, b.lat),
@@ -96,6 +104,61 @@ function bboxFromRing(latlngs) {
   return { south, north, west, east }
 }
 
+export function pointInRing(point, latlngs) {
+  let inside = false
+  for (let i = 0, j = latlngs.length - 1; i < latlngs.length; j = i++) {
+    const yi = latlngs[i][0]
+    const xi = latlngs[i][1]
+    const yj = latlngs[j][0]
+    const xj = latlngs[j][1]
+    const crosses = yi > point.lat !== yj > point.lat
+    if (!crosses) continue
+    const xAtY = ((xj - xi) * (point.lat - yi)) / (yj - yi) + xi
+    if (point.lng < xAtY) inside = !inside
+  }
+  return inside
+}
+
+function distanceToSegmentM(origin, a, b) {
+  const va = localXY(origin, a)
+  const vb = localXY(origin, b)
+  const dx = vb.x - va.x
+  const dy = vb.y - va.y
+  const lenSq = dx * dx + dy * dy
+  if (lenSq < 1e-9) return Math.hypot(va.x, va.y)
+  const t = clamp(-(va.x * dx + va.y * dy) / lenSq, 0, 1)
+  return Math.hypot(va.x + dx * t, va.y + dy * t)
+}
+
+export function pointInBuilding(point, building) {
+  if (building?.latlngs?.length >= 3) return pointInRing(point, building.latlngs)
+  if (!Number.isFinite(building?.lat) || !Number.isFinite(building?.lng)) return false
+  return distanceM(point, building) <= (building.radius || DEBRIS_FOOTPRINT_M)
+}
+
+export function distanceToBuildingM(point, building) {
+  if (!building) return Infinity
+  if (building.latlngs?.length >= 3) {
+    if (pointInRing(point, building.latlngs)) return 0
+    let nearest = Infinity
+    for (let i = 0; i < building.latlngs.length; i++) {
+      const p = building.latlngs[i]
+      const q = building.latlngs[(i + 1) % building.latlngs.length]
+      nearest = Math.min(
+        nearest,
+        distanceToSegmentM(
+          point,
+          { lat: p[0], lng: p[1] },
+          { lat: q[0], lng: q[1] }
+        )
+      )
+    }
+    return nearest
+  }
+  if (!Number.isFinite(building.lat) || !Number.isFinite(building.lng)) return Infinity
+  return Math.max(0, distanceM(point, building) - (building.radius || DEBRIS_FOOTPRINT_M))
+}
+
 export function firstBlockingBuilding(a, b, obstacles = []) {
   const segment = localXY(a, b)
   const length = Math.hypot(segment.x, segment.y)
@@ -103,11 +166,14 @@ export function firstBlockingBuilding(a, b, obstacles = []) {
 
   const origin = { x: 0, y: 0 }
   const bounds = segmentBounds(a, b)
+  const midpoint = { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 }
   for (const obstacle of obstacles) {
     if (obstacle.latlngs && obstacle.latlngs.length >= 3) {
       const obstacleBounds = obstacle.bbox ?? bboxFromRing(obstacle.latlngs)
       if (!boundsOverlap(bounds, obstacleBounds, 0.00008)) continue
       const ring = obstacle.latlngs
+      if (pointInRing(a, ring) && pointInRing(b, ring)) return obstacle.id ?? 'bina'
+      if (pointInRing(midpoint, ring)) return obstacle.id ?? 'bina'
       for (let i = 0; i < ring.length; i++) {
         const p = ring[i]
         const q = ring[(i + 1) % ring.length]
@@ -135,6 +201,65 @@ export function firstBlockingBuilding(a, b, obstacles = []) {
     )
     const footprint = typeof obstacle.radius === 'number' ? obstacle.radius : DEBRIS_FOOTPRINT_M
     if (perp < footprint) return obstacle.id ?? 'bina'
+  }
+
+  return null
+}
+
+function obstacleHeightM(obstacle, fallbackM = 12) {
+  if (Number.isFinite(obstacle?.heightM) && obstacle.heightM > 0) return obstacle.heightM
+  if (Number.isFinite(obstacle?.levels) && obstacle.levels > 0) return obstacle.levels * 3
+  return fallbackM
+}
+
+export function firstBlockingBuildingAtHeights(
+  a,
+  b,
+  startHeightM,
+  endHeightM,
+  obstacles = [],
+  options = {}
+) {
+  const segment = localXY(a, b)
+  const length = Math.hypot(segment.x, segment.y)
+  if (length < 1) return null
+
+  const excludedIds = new Set(options.excludedIds || [])
+  const clearanceM = options.clearanceM ?? 1
+  const fallbackHeightM = options.fallbackHeightM ?? 12
+  const origin = { x: 0, y: 0 }
+  const bounds = segmentBounds(a, b)
+
+  for (const obstacle of obstacles) {
+    if (excludedIds.has(obstacle.id)) continue
+    if (!obstacle.latlngs || obstacle.latlngs.length < 3) continue
+    const obstacleBounds = obstacle.bbox ?? bboxFromRing(obstacle.latlngs)
+    if (!boundsOverlap(bounds, obstacleBounds, 0.00008)) continue
+
+    const params = []
+    if (pointInRing(a, obstacle.latlngs)) params.push(0)
+    if (pointInRing(b, obstacle.latlngs)) params.push(1)
+    for (let i = 0; i < obstacle.latlngs.length; i++) {
+      const p = obstacle.latlngs[i]
+      const q = obstacle.latlngs[(i + 1) % obstacle.latlngs.length]
+      const edgeStart = localXY(a, { lat: p[0], lng: p[1] })
+      const edgeEnd = localXY(a, { lat: q[0], lng: q[1] })
+      const t = segmentIntersectionParam(origin, segment, edgeStart, edgeEnd)
+      if (t != null) params.push(t)
+    }
+    if (!params.length) continue
+
+    const unique = [...new Set(params.map((value) => Number(value.toFixed(6))))].sort(
+      (x, y) => x - y
+    )
+    const lowT = unique[0]
+    const highT = unique[unique.length - 1]
+    const lowHeight = startHeightM + (endHeightM - startHeightM) * lowT
+    const highHeight = startHeightM + (endHeightM - startHeightM) * highT
+    const signalFloorM = Math.min(lowHeight, highHeight)
+    if (obstacleHeightM(obstacle, fallbackHeightM) + clearanceM >= signalFloorM) {
+      return obstacle.id ?? 'bina'
+    }
   }
 
   return null

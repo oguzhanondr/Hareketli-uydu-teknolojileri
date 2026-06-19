@@ -7,7 +7,7 @@ import { ELBISTAN_CENTER } from '../lib/buildings.js'
 export const SCENARIOS = [
   {
     id: 'kavsak',
-    name: 'Basit Kavsak',
+    name: 'Senaryo 1',
     difficulty: 'Basit',
     description: 'Hafif hasar - 2 enkaz, 4 depremzede.',
     enkaz: 2,
@@ -15,7 +15,7 @@ export const SCENARIOS = [
   },
   {
     id: 'carsi',
-    name: 'Çarşı Bölgesi',
+    name: 'Senaryo 2',
     difficulty: 'Basit',
     description: 'Dağınık çökmeler - 3 enkaz, 6 depremzede.',
     enkaz: 3,
@@ -23,7 +23,7 @@ export const SCENARIOS = [
   },
   {
     id: 'okul',
-    name: 'Okul Bölgesi',
+    name: 'Senaryo 3',
     difficulty: 'Orta',
     description: 'Orta hasar - 3 enkaz, 9 depremzede.',
     enkaz: 3,
@@ -31,7 +31,7 @@ export const SCENARIOS = [
   },
   {
     id: 'merkez',
-    name: 'Şehir Merkezi Çöküşü',
+    name: 'Senaryo 4',
     difficulty: 'Zor',
     description: 'Ağır yapısal çöküş - 4 enkaz, 12 depremzede.',
     enkaz: 4,
@@ -39,7 +39,7 @@ export const SCENARIOS = [
   },
   {
     id: 'hastane',
-    name: 'Hastane Bölgesi Krizi',
+    name: 'Senaryo 5',
     difficulty: 'Zor',
     description: 'Yollar enkazla kapalı - 5 enkaz, 15 depremzede.',
     enkaz: 5,
@@ -47,7 +47,7 @@ export const SCENARIOS = [
   },
   {
     id: 'kentsel',
-    name: 'Tam Kentsel Felaket',
+    name: 'Senaryo 6',
     difficulty: 'Aşırı',
     description: 'Maksimum hasar - 6 enkaz, 24 depremzede.',
     enkaz: 6,

@@ -47,9 +47,11 @@ export function useMarkers() {
   const mergeBuildings = useCallback((incoming) => {
     if (!incoming || incoming.length === 0) return
     setBuildings((prev) => {
-      const byId = new Map(prev.map((b) => [b.id, b]))
+      const hasLiveOsm = incoming.some((b) => b.source === 'osm')
+      const base = hasLiveOsm ? prev.filter((b) => b.source !== 'local-osm') : prev
+      const byId = new Map(base.map((b) => [b.id, b]))
       for (const b of incoming) if (!byId.has(b.id)) byId.set(b.id, b)
-      return byId.size === prev.length ? prev : Array.from(byId.values())
+      return byId.size === prev.length && base.length === prev.length ? prev : Array.from(byId.values())
     })
   }, [])
 
