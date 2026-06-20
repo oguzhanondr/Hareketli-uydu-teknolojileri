@@ -271,6 +271,16 @@ export default function App() {
             </div>
           )}
 
+          {analysis.errors?.analyze && (
+            <div
+              role="alert"
+              className="border-b border-debris/40 bg-debris/10 px-4 py-3 text-sm leading-relaxed text-debris"
+            >
+              <span className="font-head font-bold">Analiz tamamlanamadı: </span>
+              {analysis.errors.analyze}
+            </div>
+          )}
+
           {!analysis.result ? (
             <EmptyState markers={markers} />
           ) : (

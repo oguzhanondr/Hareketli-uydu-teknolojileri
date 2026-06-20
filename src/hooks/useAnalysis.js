@@ -1,6 +1,25 @@
-import { useCallback, useRef, useState } from 'react'
-import { runAnalysis, finalizeTerminals, buildExplanationPayload } from '../lib/algorithm.js'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { generateExplanations, rerankTerminals, validatePlacementVisually } from '../lib/gemini.js'
+
+function runLocalAnalysisInWorker(requestId, survivors, debris, buildings) {
+  const worker = new Worker(new URL('../workers/analysis.worker.js', import.meta.url), {
+    type: 'module',
+  })
+
+  const promise = new Promise((resolve, reject) => {
+    worker.onmessage = (event) => {
+      if (event.data?.requestId !== requestId) return
+      if (event.data.error) reject(new Error(event.data.error))
+      else resolve(event.data.result)
+    }
+    worker.onerror = (event) => {
+      reject(new Error(event.message || 'Analiz işçisi başlatılamadı.'))
+    }
+    worker.postMessage({ requestId, survivors, debris, buildings })
+  })
+
+  return { worker, promise }
+}
 
 /**
  * Orchestrates the local-first pipeline:
@@ -25,9 +44,18 @@ export function useAnalysis() {
   const [selectedTerminalId, setSelectedTerminalId] = useState(null)
   const [validation, setValidation] = useState({ status: 'idle', result: null })
   const requestRef = useRef(0)
+  const workerRef = useRef(null)
+
+  useEffect(
+    () => () => {
+      workerRef.current?.terminate()
+    },
+    []
+  )
 
   const analyze = useCallback(async (survivors, debris, buildings, apiKey) => {
     const requestId = ++requestRef.current
+    workerRef.current?.terminate()
     setLoading(true)
     setErrors({
       analyze: null,
@@ -39,13 +67,14 @@ export function useAnalysis() {
     setStatusMessage('Yerel analiz yapılıyor...')
 
     try {
-      await new Promise((r) => setTimeout(r, 30))
-      const base = runAnalysis(survivors, debris, buildings)
-      const terminals = finalizeTerminals(base.terminals, null, buildings, debris, base.context)
-      const payload = buildExplanationPayload(terminals, base.clusters, {
-        survivors: survivors.length,
-        debris: debris.length,
-      })
+      const task = runLocalAnalysisInWorker(requestId, survivors, debris, buildings)
+      workerRef.current = task.worker
+      const local = await task.promise
+      task.worker.terminate()
+      if (workerRef.current === task.worker) workerRef.current = null
+      if (requestRef.current !== requestId) return
+
+      const { clusters, terminals, payload } = local
 
       const reasoning = Object.fromEntries(
         terminals.map((t) => {
@@ -61,7 +90,7 @@ export function useAnalysis() {
         })
       )
 
-      const localResult = { id: Date.now(), clusters: base.clusters, terminals, payload }
+      const localResult = { id: Date.now(), clusters, terminals, payload }
       setResult(localResult)
       setSelectedTerminalId(terminals[0]?.id ?? null)
       setSelectionReasoning(reasoning)
@@ -102,6 +131,9 @@ export function useAnalysis() {
         rerank: rerank.error || null,
       }))
     } catch (err) {
+      workerRef.current?.terminate()
+      workerRef.current = null
+      if (requestRef.current !== requestId) return
       setErrors((current) => ({
         ...current,
         analyze: String(err?.message || err),
@@ -137,6 +169,8 @@ export function useAnalysis() {
 
   const reset = useCallback(() => {
     requestRef.current += 1
+    workerRef.current?.terminate()
+    workerRef.current = null
     setResult(null)
     setSource('local')
     setRerankSource('local')
